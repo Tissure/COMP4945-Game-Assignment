@@ -2,3 +2,6 @@
 
 # Contributors
 Jay Wang
+James An
+Jason Oh
+Kyle Ng
