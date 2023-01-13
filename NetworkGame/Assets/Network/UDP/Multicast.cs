@@ -14,7 +14,7 @@ public class Multicast {
     private static IPAddress localIP;
     private static EndPoint localEP;
     private static IPEndPoint groupEP;
-    private static IPEndPoint remoteEP;
+    private static EndPoint remoteEP;
 
     /// <summary>
     /// Initializes network with default IP and port number
@@ -26,19 +26,27 @@ public class Multicast {
         // Both address and port are selected from the allowed sets as
         // defined in the related RFC documents. These are the same 
         // as the values used by the sender.
+
+        // Multicast Address that the reciever will 'subscribe' to
         mcastAddress = IPAddress.Parse("230.0.0.1");
+
+        // Multicast Port
         mcastPort = 11000;
 
         try {
-            // Create socket
-            mcastSocket = new Socket(AddressFamily.InterNetwork,
-                                     SocketType.Dgram,
-                                     ProtocolType.Udp);
-            IPAddress localIP = IPAddress.Any;
-            EndPoint localEP = (EndPoint) new IPEndPoint(localIP, mcastPort);
+            // Set local IPaddress to Any
+            localIP = IPAddress.Any;
+
+            // Create new Socket, defining the AddressFamily, SocketType, and ProtocolType
+            mcastSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+            // Endpoint to Bind to
+            localEP = (EndPoint) new IPEndPoint(localIP, mcastPort);
+         
+            // Set socket option to reuse address
             mcastSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
 
-            // Bind socket
+            // Bind to IPEndpoint
             mcastSocket.Bind(localEP);
 
             Thread receivingThread = new Thread(Receive);
@@ -84,51 +92,30 @@ public class Multicast {
 
     /// <summary>
     /// Recieves Payload from Socket Connection Subscribed to Sender. 
-    /// Delegate method: To be run in a background thread, to 'recieve' constantly.
+    /// Delegate method: To be run in a background thread, to 'receive' constantly.
     /// </summary>
-    public void Recieve()
+    public void Receive()
     {
-
-        // Create new Socket, defining the AddressFamily, SocketType, and ProtocolType
-        mcastSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-        // Multicast Address that the reciever will 'subscribe' to
-        mcastAddress = IPAddress.Parse("230.0.0.1");
-
-        // Multicast Port
-        mcastPort = 11000;
-        // Set local IPaddress to Any
-        localIP = IPAddress.Any;
-
-        // Endpoint to Bind to
-        localEP = new EndPoint(localIP, mcastPort);
-        mcastSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
-        
-        // Bind to IPEndpoint
-        mcastSocket.Bind(localEP);
-
         // Create Multicast Option to set later
         mcastOption = new MulticastOption(mcastAddress, localIP);
 
         // Set socket options. Subscribe (Add Membership) to Multicast Broadcast
-        mcastOption.SetSocketOption(SocketOptionLevel.IP, SocketOptionLevelName.AddMembership, mcastOption);
+        mcastSocket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, mcastOption);
 
         byte[] message = new byte[1024];
 
         // Endpoint to recieve message from (Any Ip Address, Port: 0)
-        IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
+        remoteEP = new IPEndPoint(IPAddress.Any, 0);
 
+        Console.WriteLine("Waiting for packets..");
         // Recieved bytes
-        int recv
+        int recv = mcastSocket.ReceiveFrom(message, ref remoteEP);
 
-        while (true) 
+        while (recv != 0) 
         {
-            Console.WriteLine("Waiting for packets..");
-            recv = mcastSocket.ReceiveFrom(message, ref remoteEP)
             Console.WriteLine("Recieved packets..\n" + Encoding.ASCII.GetString(message));
+            recv = mcastSocket.ReceiveFrom(message, ref remoteEP);
         }
-        // Release Connection and resources
-        mcastSocket.Close();
     }
 
 }
