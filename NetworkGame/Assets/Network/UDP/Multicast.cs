@@ -21,15 +21,16 @@ public class Multicast {
     /// Sends Yeet over socket connection
     /// </summary>
     /// <returns>
-    /// True if messgae succeeds
+    /// <c>True</c> if messgae successfully sends.
+    /// <c>False</c> otherwise
     /// </returns>
     public bool Send() {
-        if (socket == null) {
-            System.Diagnostics.Debug.WriteLine("Network not initialized");
-            return false;
-        }
-        string msg = "Yeet";
-        System.Diagnostics.Debug.WriteLine("Message sent: " + msg);
-        return true;
+        //if (socket == null) {
+        //    System.Diagnostics.Debug.WriteLine("Network not initialized");
+        //    return false;
+        //}
+        //string msg = "Yeet";
+        //System.Diagnostics.Debug.WriteLine("Message sent: " + msg);
+        //return true;
     }
 }
