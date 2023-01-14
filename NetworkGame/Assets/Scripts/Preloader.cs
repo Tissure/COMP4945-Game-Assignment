@@ -1,19 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-<<<<<<< HEAD
 using NetworkModule;
-=======
 using UnityEditor.PackageManager;
 using System.Reflection;
 using System.IO;
->>>>>>> 84fad69 (Reflection may work)
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class Preloader : MonoBehaviour
 {
     Multicast multicast;
+
 
     public CustomNetworkModule createNetworkModule(string module)
     {
