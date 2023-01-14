@@ -7,7 +7,8 @@ using System.Text;
 using System.Threading;
 
 namespace NetworkModule {
-    public class Multicast {
+    public class Multicast : CustomNetworkModule
+    {
         private static IPAddress mcastAddress;
         private static int mcastPort;
         private static Socket mcastSocket;
