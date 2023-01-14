@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UnityEngine;
 
 namespace NetworkModule {
     public class Multicast {
@@ -43,6 +44,8 @@ namespace NetworkModule {
 
                 // Endpoint to Bind to
                 localEP = (EndPoint) new IPEndPoint(localIP, mcastPort);
+                // Endpoint to send to
+                groupEP = new IPEndPoint(mcastAddress, mcastPort);
 
                 // Set socket option to reuse address
                 mcastSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
@@ -50,13 +53,13 @@ namespace NetworkModule {
                 // Bind to IPEndpoint
                 mcastSocket.Bind(localEP);
 
-                Thread receivingThread = new Thread(Receive);
+                Thread receivingThread = new Thread(new ThreadStart(Receive));
                 receivingThread.IsBackground = true;
                 receivingThread.Start();
 
                 // Create Thread to listen for incomming messages
             } catch (Exception e) {
-                Console.WriteLine(e.ToString());
+                Debug.Log(e.ToString());
             }
         }
 
@@ -79,10 +82,10 @@ namespace NetworkModule {
             try {
 
                 mcastSocket.SendTo(ASCIIEncoding.ASCII.GetBytes("Hello Multicast Listener"), groupEP);
-                Console.WriteLine("Multicast data sent.....");
+                Debug.Log("Multicast data sent.....");
                 return true;
             } catch (Exception e) {
-                Console.WriteLine("\n" + e.ToString());
+                Debug.Log("\n" + e.ToString());
                 return false;
             }
 
@@ -104,12 +107,12 @@ namespace NetworkModule {
             // Endpoint to recieve message from (Any Ip Address, Port: 0)
             remoteEP = new IPEndPoint(IPAddress.Any, 0);
 
-            Console.WriteLine("Waiting for packets..");
+            Debug.Log("Waiting for packets..");
             // Recieved bytes
             int recv = mcastSocket.ReceiveFrom(message, ref remoteEP);
 
             while (recv != 0) {
-                Console.WriteLine("Recieved packets..\n" + Encoding.ASCII.GetString(message));
+                Debug.Log("Recieved packets..\n" + Encoding.ASCII.GetString(message));
                 recv = mcastSocket.ReceiveFrom(message, ref remoteEP);
             }
         }
