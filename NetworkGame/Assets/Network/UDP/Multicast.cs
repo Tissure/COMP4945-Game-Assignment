@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using UnityEngine;
@@ -82,7 +83,10 @@ namespace NetworkModule {
 
             try {
 
-                mcastSocket.SendTo(ASCIIEncoding.ASCII.GetBytes("Hello Multicast Listener"), groupEP);
+                //mcastSocket.SendTo(ASCIIEncoding.ASCII.GetBytes("Hello Multicast Listener"), groupEP);
+                // Testing PacketBuilder
+                Packet packet = new Packet();
+                mcastSocket.SendTo(ASCIIEncoding.ASCII.GetBytes(packet.serverBuildPacket(1, 2, 3)), groupEP);
                 Debug.Log("Multicast data sent.....");
                 return true;
             } catch (Exception e) {
@@ -112,8 +116,11 @@ namespace NetworkModule {
             // Recieved bytes
             int recv = mcastSocket.ReceiveFrom(message, ref remoteEP);
 
+            Packet packet = new Packet();
+
             while (recv != 0) {
-                Debug.Log("Recieved packets..\n" + Encoding.ASCII.GetString(message));
+                Debug.Log("Recieved packets..\n" + packet.readPacket(Encoding.ASCII.GetString(message)));
+                Debug.Log("Recieved Packets.. \n" + Encoding.ASCII.GetString(message));
                 recv = mcastSocket.ReceiveFrom(message, ref remoteEP);
             }
         }
