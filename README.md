@@ -7,3 +7,9 @@ Jay Wang <br />
 James An <br />
 Jason Oh <br />
 Kyle Ng <br />
+
+# Contributions:
+============ Jay Wang ============
+Set up Reflection
+Worked on Multicast.Send()
+Worked on Packet Class: serverBuildPacket, readPacket
