@@ -15,7 +15,9 @@ public class Preloader : MonoBehaviour
     public CustomNetworkModule createNetworkModule(string module)
     {
 
-        string workingDirectory = System.IO.Directory.GetCurrentDirectory().Split("Preloader.cs")[0];
+        //string workingDirectory = System.IO.Directory.GetCurrentDirectory().Split("Preloader.cs")[0];
+        string workingDirectory = Application.dataPath;
+        UnityEngine.Debug.Log(workingDirectory);
         string modulePath = Path.Combine(workingDirectory, module + ".dll");
         string className = "NetworkModule." + module;
 
@@ -29,12 +31,16 @@ public class Preloader : MonoBehaviour
     // Awake is called on object initialization
     void Awake()
     {
+        UnityEngine.Debug.Log("Testing Reflection");
+        // Testing Reflection
+        //createNetworkModule("UDP");
+        
         multicast= new Multicast();
         multicast.initDefaultNetwork();
     }
 
     void Update() {
-       if (!Application.isPlaying) {
+        if (!Application.isPlaying) {
             return;
         }
 

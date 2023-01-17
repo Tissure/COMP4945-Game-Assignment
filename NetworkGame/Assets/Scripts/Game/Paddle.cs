@@ -29,6 +29,11 @@ public class Paddle : MonoBehaviour
         }
 
         rb.velocity = new Vector2(rb.velocity.x, movement * speed);
+        
+        /*
+         * Send out Paddle Position every frame (Update()) to GameManager (Singleton and Subject)
+         */
+        
     }
 
     public void Reset(){
