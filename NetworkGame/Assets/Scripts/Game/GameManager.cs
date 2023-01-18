@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+using NetworkModule;
+
 public class GameManager : MonoBehaviour
 {
     private static GameManager _instance;
-    public static GameManager Instance { get { return _instance; } }
+    public static GameManager getInstance { get { return _instance; } }
     private void Awake()
     {
         if (_instance !=null && _instance != this) 
@@ -18,6 +20,10 @@ public class GameManager : MonoBehaviour
             _instance = this;
         }
     }
+
+    // Game State
+    public Paddle localPlayer;
+    public List<Paddle> playerList = new List<Paddle>();
 
     [Header("Ball")]
     public GameObject ball;
@@ -54,4 +60,13 @@ public class GameManager : MonoBehaviour
         player1Paddle.GetComponent<Paddle>().Reset();
         player2Paddle.GetComponent<Paddle>().Reset();
     }
+
+    public void Update()
+    {
+        PacketHandler packet = new PacketHandler();
+        string payload = packet.serverBuildPacket(localPlayer.id,localPlayer.rb.position.x,localPlayer.rb.position.y);
+        Multicast multicast = new Multicast();
+        multicast.Send(payload);
+    }
+
 }

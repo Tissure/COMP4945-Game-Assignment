@@ -11,10 +11,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-
 namespace NetworkModule
 {
-    public class Packet
+    public class PacketHandler
     {
         public static class Constants
         {
@@ -31,9 +30,24 @@ namespace NetworkModule
         }
 
         /// <summary>
+        /// Sets the game state of the GameManager Singleton
+        /// </summary>
+        public void setGameState(int playerID, double xcoord, double ycoord)
+        {
+            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
+            foreach(Paddle player in gameState.playerList)
+            {
+                if (playerID == player.id)
+                {
+                    // Update this Player.
+                }
+            }
+        }
+
+        /// <summary>
         /// Builds a Packet.
         /// </summary>
-        public string serverBuildPacket(int id, int xCoord, int yCoord)
+        public string serverBuildPacket(int id, float xCoord, float yCoord)
         {
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
@@ -66,6 +80,8 @@ namespace NetworkModule
             int xCoord = -1;
             int yCoord = -1;
 
+            // TODO: Detect Content-Type;
+
             Match m = Regex.Match(payload, Constants.IDREGEX);
             if (m.Success)
             {
@@ -93,6 +109,9 @@ namespace NetworkModule
             {
                 UnityEngine.Debug.Log("YCOORD: HELL");
             }
+
+            // After having parsed the incoming payload, set the state of the GameManager
+            setGameState(id, xCoord, yCoord);
 
             return String.Format("Recieved Payload... [ID:{0} | XCOORD: {1} | YCOORD:{2}]", id.ToString(), xCoord.ToString(), yCoord.ToString());
 

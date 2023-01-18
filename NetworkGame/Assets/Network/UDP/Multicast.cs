@@ -72,7 +72,7 @@ namespace NetworkModule {
         /// <c>True</c> if messgae successfully sends.
         /// <c>False</c> otherwise
         /// </returns>
-        public bool Send() {
+        public bool Send(string payload) {
             //if (socket == null) {
             //    System.Diagnostics.Debug.WriteLine("Network not initialized");
             //    return false;
@@ -85,8 +85,11 @@ namespace NetworkModule {
 
                 //mcastSocket.SendTo(ASCIIEncoding.ASCII.GetBytes("Hello Multicast Listener"), groupEP);
                 // Testing PacketBuilder
-                Packet packet = new Packet();
-                mcastSocket.SendTo(ASCIIEncoding.ASCII.GetBytes(packet.serverBuildPacket(1, 2, 3)), groupEP);
+                PacketHandler packet = new PacketHandler();
+                GameManager currentGameState = GameManager.getInstance;
+
+                // Send Packet that only contains localPlayer's position
+                mcastSocket.SendTo(ASCIIEncoding.ASCII.GetBytes(payload), groupEP);
                 Debug.Log("Multicast data sent.....");
                 return true;
             } catch (Exception e) {

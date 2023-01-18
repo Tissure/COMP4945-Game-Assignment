@@ -2,12 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\NetworkGame",
-    "\\NetworkGame\\Packages",
+    "\\NetworkGame\\Assets",
+    "\\NetworkGame\\Assets\\Network",
+    "\\NetworkGame\\Assets\\Scripts",
+    "\\NetworkGame\\Assets\\Scripts\\Game",
     "\\NetworkGame\\UserSettings",
-    "\\NetworkModule",
     "\\NetworkModule\\bin",
     "\\NetworkModule\\bin\\Debug",
     "\\NetworkModule\\Network"
   ],
+  "SelectedNode": "\\NetworkGame\\Assets\\Scripts\\Game\\GameManager.cs",
   "PreviewInSolutionExplorer": false
 }

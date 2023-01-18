@@ -39,7 +39,8 @@ public class Preloader : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.Space) == true) {
-            multicast.Send();
+            //multicast.Send();
+            
         }
     }
 }
