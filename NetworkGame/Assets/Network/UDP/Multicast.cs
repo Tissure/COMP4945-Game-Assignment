@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -33,21 +35,30 @@ namespace NetworkModule {
 
             // Multicast Address that the reciever will 'subscribe' to
             mcastAddress = IPAddress.Parse("230.0.0.1");
+            
 
             // Multicast Port
             mcastPort = 11000;
 
             try {
-                // Set local IPaddress to Any
-                localIP = IPAddress.Any;
+                // Set local IPaddress to Any THIS SHOULD WORK BUT DOESNT
+                //localIP = IPAddress.Any;
+
+                // Set localIp to current machine address
+                string ip = GetLocalIPv4(NetworkInterfaceType.Wireless80211);
+                localIP = IPAddress.Parse(ip);
+                Debug.Log(localIP.ToString());
 
                 // Create new Socket, defining the AddressFamily, SocketType, and ProtocolType
                 mcastSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                mcastSocket.EnableBroadcast = true;
 
                 // Endpoint to Bind to
                 localEP = (EndPoint) new IPEndPoint(localIP, mcastPort);
                 // Endpoint to send to
                 groupEP = new IPEndPoint(mcastAddress, mcastPort);
+
+                Debug.Log(groupEP.ToString());
 
                 // Set socket option to reuse address
                 mcastSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
@@ -86,14 +97,40 @@ namespace NetworkModule {
                 //mcastSocket.SendTo(ASCIIEncoding.ASCII.GetBytes("Hello Multicast Listener"), groupEP);
                 // Testing PacketBuilder
                 Packet packet = new Packet();
-                mcastSocket.SendTo(ASCIIEncoding.ASCII.GetBytes(packet.serverBuildPacket(1, 2, 3)), groupEP);
-                Debug.Log("Multicast data sent.....");
+                byte[] msg = ASCIIEncoding.ASCII.GetBytes(packet.serverBuildPacket(1, 2, 3));
+                mcastSocket.SendTo(msg, 0, msg.Length, SocketFlags.None, groupEP);
+                 Debug.Log("Multicast data sent.....");
                 return true;
             } catch (Exception e) {
                 Debug.Log("\n" + e.ToString());
                 return false;
             }
 
+        }
+
+        internal static string GetLocalIPv4(NetworkInterfaceType _type) {  // Checks your IP adress from the local network connected to a gateway. This to avoid issues with double network cards
+            string output = "";  // default output
+            foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces()) // Iterate over each network interface
+            {  // Find the network interface which has been provided in the arguments, break the loop if found
+                if (item.NetworkInterfaceType == _type && item.OperationalStatus == OperationalStatus.Up) {   // Fetch the properties of this adapter
+                    IPInterfaceProperties adapterProperties = item.GetIPProperties();
+                    // Check if the gateway adress exist, if not its most likley a virtual network or smth
+                    if (adapterProperties.GatewayAddresses.FirstOrDefault() != null) {   // Iterate over each available unicast adresses
+                        foreach (UnicastIPAddressInformation ip in adapterProperties.UnicastAddresses) {   // If the IP is a local IPv4 adress
+                            if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) {   // we got a match!
+                                output = ip.Address.ToString();
+                                break;  // break the loop!!
+                            }
+                        }
+                    }
+                }
+                // Check if we got a result if so break this method
+                if (output != "") {
+                    break;
+                }
+            }
+            // Return results
+            return output;
         }
 
         /// <summary>
