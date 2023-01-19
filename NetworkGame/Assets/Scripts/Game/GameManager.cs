@@ -6,10 +6,11 @@ using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
-    GameObject Player1Prefab;
-    GameObject Player2Prefab;
+    GameObject PlayerPrefab;
+    GameObject RemotePlayerPrefab;
 
     public GameObject localPlayer;
+    public GameObject remotePlayer;
     public List<GameObject> playerList = new List<GameObject>();
 
     private static GameManager _instance;
@@ -28,33 +29,42 @@ public class GameManager : MonoBehaviour
     }
 
     //Adds a new player to the player list and instantiates a paddle for player
-    public void onPlayerConnect(int randomID)
+    public void onPlayerConnect(params int[] numbers)
     {
-        //add player to list
-        playerList.add();
+
         //check if list is odd or even
         //instantiate team 1 or 2 prefab paddle
+        //add player to list
+        //playerList.Add();
     }
 
     //For testing currently
     public void initDefaultGameState()
     {
         playerList.Add(localPlayer);
-        InstantiateTeam1Player(0);
+        InstantiatePlayer(0, 1);
+        //check if player list is more than 1
+        //if not pause game
+        playerList.Add(remotePlayer);
+        InstantiatePlayer(1, 2);
+
     }
 
     //Instantiates a prefab for a specific playerid on the list
-    void InstantiateTeam1Player(int playerID)
+    void InstantiatePlayer(int playerID, int teamNum)
     {
-        Player1Prefab = Resources.Load("Player1Prefab") as GameObject;
-        playerList[playerID] = Instantiate(Player1Prefab);
-    }
-
-    //Instantiates a prefab for a specific playerid on the list
-    void InstantiateTeam2Player(int playerID)
-    {
-        Player2Prefab = Resources.Load("Player2Prefab") as GameObject;
-        playerList[playerID] = Instantiate(Player2Prefab);
+        PlayerPrefab = Resources.Load("PlayerPrefab") as GameObject;
+        GameObject player = Instantiate(PlayerPrefab);
+        if (teamNum == 1)
+        {
+            player.transform.position = new Vector2(-8, 0);
+            player.GetComponent<Paddle>().SetLocal(true);
+        } else
+        {
+            player.transform.position = new Vector2(8, 0);
+            player.GetComponent<Paddle>().SetLocal(false);
+        }
+        playerList[playerID] = player;
     }
 
     [Header("Ball")]
@@ -87,13 +97,8 @@ public class GameManager : MonoBehaviour
 
     private void ResetPosition(){
         ball.GetComponent<Ball>().Reset();
-        if (Player1Prefab != null) {
-            Player1Prefab.GetComponent<Paddle>().Reset();
-        }
-        if (Player2Prefab != null)
-        {
-            Player2Prefab.GetComponent<Paddle>().Reset();
-        }
+        PlayerPrefab.GetComponent<Paddle>().Reset();
+        
     }
 
 
