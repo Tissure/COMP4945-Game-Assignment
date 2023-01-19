@@ -85,7 +85,7 @@ namespace NetworkModule {
 
                 //mcastSocket.SendTo(ASCIIEncoding.ASCII.GetBytes("Hello Multicast Listener"), groupEP);
                 // Testing PacketBuilder
-                PacketHandler packet = new PacketHandler();
+                //PacketHandler packet = new PacketHandler(); DEPRECATED
                 GameManager currentGameState = GameManager.getInstance;
 
                 // Send Packet that only contains localPlayer's position

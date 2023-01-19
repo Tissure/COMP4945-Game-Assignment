@@ -63,6 +63,7 @@ public class GameManager : MonoBehaviour
 
     public void Update()
     {
+        // MonoBehaviour Update() is called every frame.
         PacketHandler packet = new PacketHandler();
         string payload = packet.buildPacket("Player");
         Multicast multicast = new Multicast();
