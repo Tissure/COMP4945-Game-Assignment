@@ -6,11 +6,8 @@
     "\\NetworkGame\\Assets\\Network",
     "\\NetworkGame\\Assets\\Scripts",
     "\\NetworkGame\\Assets\\Scripts\\Game",
-    "\\NetworkGame\\UserSettings",
-    "\\NetworkModule\\bin",
-    "\\NetworkModule\\bin\\Debug",
-    "\\NetworkModule\\Network"
+    "\\NetworkGame\\UserSettings"
   ],
-  "SelectedNode": "\\NetworkGame\\Assets\\Scripts\\Game\\GameManager.cs",
+  "SelectedNode": "\\NetworkGame\\Assets\\Network\\NetworkModule.cs",
   "PreviewInSolutionExplorer": false
 }

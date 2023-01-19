@@ -23,25 +23,51 @@ namespace NetworkModule
             public const string IDFORMAT = "id:{0}";
             public const string COORDFORMAT = "{0}coord:{1}";
             public const string EOT = "\\4";
-
+            
+            // Player Information
             public const string IDREGEX = @"\bid:\d*\b";
             public const string XCOORDREGEX = @"\bXcoord:\d*\b";
             public const string YCOORDREGEX = @"\bYcoord:\d*\b";
         }
 
         /// <summary>
-        /// Sets the game state of the GameManager Singleton
+        /// Helper Function to build Multi-Part bodypart
         /// </summary>
-        public void setGameState(int playerID, double xcoord, double ycoord)
+        /// <returns>MIME Multipart-Form Bodypart containing payload as a string.</returns>
+        public string buildPlayerBodyPart(string id, double xCoord, double yCoord)
         {
-            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
-            foreach(Paddle player in gameState.playerList)
-            {
-                if (playerID == player.id)
-                {
-                    // Update this Player.
-                }
-            }
+            string payload = "";
+            StringBuilder stringBuilder = new StringBuilder(payload);
+
+            // Header Info
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player").Append(Constants.CRLF).Append(Constants.CRLF);
+
+            // Payload
+            stringBuilder.AppendFormat(Constants.IDFORMAT, id).Append(Constants.CRLF);
+            stringBuilder.AppendFormat(Constants.COORDFORMAT, "X", xCoord.ToString()).Append(Constants.CRLF);
+            stringBuilder.AppendFormat(Constants.COORDFORMAT, "Y", yCoord.ToString()).Append(Constants.CRLF);
+
+            // Delimit end of message
+            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF).Append(Constants.CRLF);
+            stringBuilder.Append(Constants.EOT);
+            return stringBuilder.ToString();
+
+        }
+
+        public string buildBallPositionBodyPart(double xCoord, double yCoord)
+        {
+            string payload = "";
+            StringBuilder stringBuilder = new StringBuilder(payload);
+
+            // Header Info
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Ball").Append(Constants.CRLF).Append(Constants.CRLF);
+
+            // Start of Payload
+            stringBuilder.AppendFormat(Constants.COORDFORMAT, "X", xCoord.ToString()).Append(Constants.CRLF);
+            stringBuilder.AppendFormat(Constants.COORDFORMAT, "Y", yCoord.ToString()).Append(Constants.CRLF);
+            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF).Append(Constants.CRLF);
+
+            return stringBuilder.ToString();
         }
 
         /// <summary>
@@ -71,49 +97,98 @@ namespace NetworkModule
 
             }*/
 
-        /// <summary>
-        /// Parses incoming Packet.
-        /// </summary>
-        public string readPacket(string payload)
+        public int parseID(string payload)
         {
-            int id = -1;
-            int xCoord = -1;
-            int yCoord = -1;
-
-            // TODO: Detect Content-Type;
-
+            int id = 0;
             Match m = Regex.Match(payload, Constants.IDREGEX);
             if (m.Success)
             {
                 UnityEngine.Debug.Log("ID: " + m.Value.Split("id:")[1]);
                 id = Int32.Parse(m.Value.Split("id:")[1]);
             }
-            
-            m = Regex.Match(payload, Constants.XCOORDREGEX);
+            return id;
+        }
+
+        public double parseXCoord(string payload)
+        {
+            double XCoord = 0;
+            Match m = Regex.Match(payload, Constants.XCOORDREGEX);
             if (m.Success)
             {
                 UnityEngine.Debug.Log("XCOORD: " + m.Value.Split("Xcoord:")[1]);
-                xCoord = Int32.Parse(m.Value.Split("Xcoord:")[1]);
-            } else
-            {
-                UnityEngine.Debug.Log("XCOORD: HELL");
+                XCoord = Double.Parse(m.Value.Split("Xcoord:")[1]);
             }
+            return XCoord;
+        }
 
-            m = Regex.Match(payload, Constants.YCOORDREGEX);
+        public double parseYCoord(string payload)
+        {
+            double YCoord = 0;
+            Match m = Regex.Match(payload, Constants.YCOORDREGEX);
             if (m.Success)
             {
                 UnityEngine.Debug.Log("YCOORD: " + m.Value.Split("Ycoord:")[1]);
-                yCoord = Int32.Parse(m.Value.Split("Ycoord:")[1]);
+                YCoord = Double.Parse(m.Value.Split("Ycoord:")[1]);
             }
-            else
+            return YCoord;
+        }
+
+        /// <summary>
+        /// Sets the game state of the GameManager Singleton
+        /// </summary>
+        public void setGameState(int playerID, double xcoord, double ycoord)
+        {
+            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
+            foreach (Paddle player in gameState.playerList)
             {
-                UnityEngine.Debug.Log("YCOORD: HELL");
+                if (playerID == player.id)
+                {
+                    // Update this Player.
+                }
             }
+        }
+
+        /// <summary>
+        /// Parses incoming Packet.
+        /// </summary>
+        public string readPacket(string payload)
+        {
+            int id = -1;
+            double xCoord = -1;
+            double yCoord = -1;
+
+            // TODO: Detect Content-Type;
+            Match m = Regex.Match(payload, Constants.CONTENTTYPEFORMAT);
+            if (m.Success)
+            {
+                UnityEngine.Log("Recieved Content-Type: " + m.Value.Split("Content-Type:")[1]);
+                string intermediate = m.Value.Split("Content-Type:")[1];
+                switch (intermediate)
+                {
+                    case "Ball":
+                        break;
+                    case "Player":
+                        break;
+                    case "Player-Connection":
+                        // TODO: Need to send payload containing their ID and current GameState
+                        break;
+                    case "Player-Disconnect":
+                        // TODO: Remove corresponding player from playerList in GameManager.
+                        break;
+                }
+            }
+
+            id = parseID(payload);
+            xCoord = parseXCoord(payload);
+            yCoord = parseYCoord(payload);
+
 
             // After having parsed the incoming payload, set the state of the GameManager
             setGameState(id, xCoord, yCoord);
 
             return String.Format("Recieved Payload... [ID:{0} | XCOORD: {1} | YCOORD:{2}]", id.ToString(), xCoord.ToString(), yCoord.ToString());
+
+            //return "";
 
         }
 
