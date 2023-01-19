@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
     private static GameManager _instance;
     public static GameManager Instance { get { return _instance; } }
+
     private void Awake()
     {
         if (_instance !=null && _instance != this) 
@@ -19,39 +21,84 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //public UnityEvent OnPlayerInstantiated;
+
+    //void Start()
+    //{
+
+    //    OnPlayerInstantiated.AddListener(InstantiateTeam1Player(2));
+    //}
+
+    //public void onPlayerConnect()
+    //{
+    //    //add player to list
+    //    playerList.add();
+    //}
+
+    GameObject Player1Prefab;
+    GameObject Player2Prefab;
+
+    public GameObject localPlayer;
+    public List<GameObject> playerList = new List<GameObject>();
+
+    public void initDefaultGameState()
+    {
+        playerList.Add(localPlayer);
+        //OnPlayerInstantiated.AddListener(InstantiateTeam1Player(0));
+        InstantiateTeam1Player(0);
+    }
+
+    void InstantiateTeam1Player(int playerID)
+    {
+        Player1Prefab = Resources.Load("Player1Prefab") as GameObject;
+        playerList[playerID] = Instantiate(Player1Prefab);
+    }
+
+    void InstantiateTeam2Player(int playerID)
+    {
+        Player2Prefab = Resources.Load("Player2Prefab") as GameObject;
+        playerList[playerID] = Instantiate(Player2Prefab);
+    }
+
     [Header("Ball")]
     public GameObject ball;
 
     [Header("Player 1")]
-    public GameObject player1Paddle;
-    public GameObject player1Goal;
+    public GameObject Team1Goal;
 
     [Header("Player 2")]
-    public GameObject player2Paddle;
-    public GameObject player2Goal;
+    public GameObject Team2Goal;
 
     [Header("Score UI")]
-    public GameObject Player1Text;
-    public GameObject Player2Text;
+    public GameObject Team1Text;
+    public GameObject Team2Text;
 
-    private int Player1Score;
-    private int Player2Score;
+    private int Team1Score;
+    private int Team2Score;
 
-    public void Player1Scored(){
-        Player1Score++;
-        Player1Text.GetComponent<TextMeshProUGUI>().text = Player1Score.ToString();
+    public void Team1Scored(){
+        Team1Score++;
+        Team1Text.GetComponent<TextMeshProUGUI>().text = Team1Score.ToString();
         ResetPosition();
     }
 
-    public void Player2Scored(){
-        Player2Score++;
-        Player2Text.GetComponent<TextMeshProUGUI>().text = Player2Score.ToString();
+    public void Team2Scored(){
+        Team2Score++;
+        Team2Text.GetComponent<TextMeshProUGUI>().text = Team2Score.ToString();
         ResetPosition();
     }
 
     private void ResetPosition(){
         ball.GetComponent<Ball>().Reset();
-        player1Paddle.GetComponent<Paddle>().Reset();
-        player2Paddle.GetComponent<Paddle>().Reset();
+        if (Player1Prefab != null) {
+            Player1Prefab.GetComponent<Paddle>().Reset();
+        }
+        if (Player2Prefab != null)
+        {
+            Player2Prefab.GetComponent<Paddle>().Reset();
+        }
     }
+
+
+
 }

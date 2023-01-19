@@ -36,10 +36,12 @@ namespace NetworkModule {
 
             // Multicast Port
             mcastPort = 11000;
-
+            
             try {
                 // Set local IPaddress to Any
                 localIP = IPAddress.Any;
+                //localIP = IPAddress.Parse("192.168.0.165");
+                Debug.Log(localIP.ToString());
 
                 // Create new Socket, defining the AddressFamily, SocketType, and ProtocolType
                 mcastSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);

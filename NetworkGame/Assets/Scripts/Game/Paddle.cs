@@ -9,6 +9,8 @@ public class Paddle : MonoBehaviour
     public Rigidbody2D rb;
     public Vector3 startPos;
 
+    private int ID;
+
     private float movement;
 
     void Start()
