@@ -6,6 +6,12 @@ using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
+    GameObject Player1Prefab;
+    GameObject Player2Prefab;
+
+    public GameObject localPlayer;
+    public List<GameObject> playerList = new List<GameObject>();
+
     private static GameManager _instance;
     public static GameManager Instance { get { return _instance; } }
 
@@ -21,39 +27,30 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    //public UnityEvent OnPlayerInstantiated;
+    //Adds a new player to the player list and instantiates a paddle for player
+    public void onPlayerConnect(int randomID)
+    {
+        //add player to list
+        playerList.add();
+        //check if list is odd or even
+        //instantiate team 1 or 2 prefab paddle
+    }
 
-    //void Start()
-    //{
-
-    //    OnPlayerInstantiated.AddListener(InstantiateTeam1Player(2));
-    //}
-
-    //public void onPlayerConnect()
-    //{
-    //    //add player to list
-    //    playerList.add();
-    //}
-
-    GameObject Player1Prefab;
-    GameObject Player2Prefab;
-
-    public GameObject localPlayer;
-    public List<GameObject> playerList = new List<GameObject>();
-
+    //For testing currently
     public void initDefaultGameState()
     {
         playerList.Add(localPlayer);
-        //OnPlayerInstantiated.AddListener(InstantiateTeam1Player(0));
         InstantiateTeam1Player(0);
     }
 
+    //Instantiates a prefab for a specific playerid on the list
     void InstantiateTeam1Player(int playerID)
     {
         Player1Prefab = Resources.Load("Player1Prefab") as GameObject;
         playerList[playerID] = Instantiate(Player1Prefab);
     }
 
+    //Instantiates a prefab for a specific playerid on the list
     void InstantiateTeam2Player(int playerID)
     {
         Player2Prefab = Resources.Load("Player2Prefab") as GameObject;
