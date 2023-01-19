@@ -28,11 +28,12 @@ namespace NetworkModule
             public const string IDREGEX = @"\bid:\d*\b";
             public const string XCOORDREGEX = @"\bXcoord:\d*\b";
             public const string YCOORDREGEX = @"\bYcoord:\d*\b";
-        }
+        }        
+        
 
         /// <summary>
         /// Builds a Packet.
-        /// </summary>
+        /// </summary> 
         public string serverBuildPacket(int id, int xCoord, int yCoord)
         {
             string payload = "";
@@ -62,7 +63,7 @@ namespace NetworkModule
         /// </summary>
         public string readPacket(string payload)
         {
-            int id = -1;
+            int   = -1;
             int xCoord = -1;
             int yCoord = -1;
 
