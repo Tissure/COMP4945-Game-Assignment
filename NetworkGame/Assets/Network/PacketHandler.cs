@@ -32,6 +32,21 @@ namespace NetworkModule
 
         public string buildPlayerConnectionPacket()
         {
+            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
+            string payload = "";
+            StringBuilder stringBuilder = new StringBuilder(payload);
+            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
+
+            // Header Info
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player-Connection").Append(Constants.CRLF).Append(Constants.CRLF);
+            stringBuilder.Append(buildPlayerListBodyPart(gameState.playerList));
+            stringBuilder.Append(buildBallPositionBodyPart(gameState.ball.transform.position.x, gameState.ball.transform.position.y));
+
+            // Delimit end of message
+            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF).Append(Constants.CRLF);
+            stringBuilder.Append(Constants.EOT);
+
+            return stringBuilder.ToString();
 
         }
 
@@ -39,14 +54,14 @@ namespace NetworkModule
         /// Helper Function to build Multi-Part bodypart
         /// </summary>
         /// <returns>MIME Multipart-Form Bodypart containing payload as a string.</returns>
-        public string buildPlayerBodyPart(string id, float xCoord, float yCoord)
+        public string buildPlayerBodyPart(string id, float xCoord, float yCoord, string contentType)
         {
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
 
             stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
             // Header Info
-            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Playerlist").Append(Constants.CRLF).Append(Constants.CRLF);
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, contentType).Append(Constants.CRLF).Append(Constants.CRLF);
 
             // Payload
             stringBuilder.AppendFormat(Constants.IDFORMAT, id).Append(Constants.CRLF);
@@ -57,7 +72,8 @@ namespace NetworkModule
             return stringBuilder.ToString();
 
         }
-        public string buildPlayerListBodyPart(List<Player> playerList)
+
+        public string buildPlayerListBodyPart(List<Paddle> playerList)
         {
             GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
             string payload = "";
@@ -71,7 +87,7 @@ namespace NetworkModule
             // Payload
             foreach(Paddle player in gameState.playerList)
             {
-                stringBuilder.Append(buildPlayerBodyPart(player.id, player.rb.position.x, player.rb.position.y));
+                stringBuilder.Append(buildPlayerBodyPart(player.id.ToString(), player.rb.position.x, player.rb.position.y, "playerList"));
             }
 
             // Return payload
@@ -79,10 +95,12 @@ namespace NetworkModule
 
         }
 
-        public string buildBallPositionBodyPart(double xCoord, double yCoord)
+        public string buildBallPositionBodyPart(float xCoord, float yCoord)
         {
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
+
+            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
 
             // Header Info
             stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Ball").Append(Constants.CRLF).Append(Constants.CRLF);
@@ -97,14 +115,34 @@ namespace NetworkModule
         /// <summary>
         /// Builds a Packet.
         /// </summary>
-        public string serverBuildPacket(int id, float xCoord, float yCoord)
+        public string buildPacket(string packetType)
         {
+            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
-
             stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
 
-            payload += buildPlayerBodyPart(id, xCoord, yCoord);
+            // Header Info
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, packetType).Append(Constants.CRLF).Append(Constants.CRLF);
+
+            // TODO: Append Payload based on packetType
+            switch (packetType)
+            {
+                case "Ball":
+                    break;
+                case "Player":
+                    stringBuilder.Append(buildPlayerBodyPart(gameState.localPlayer.id.ToString(), gameState.localPlayer.rb.position.x, gameState.localPlayer.rb.position.y, "Player"));
+                    break;
+                case "Player-Connection":
+                    // TODO: Need to send payload containing their ID and current GameState
+                    stringBuilder.Append(buildPlayerConnectionPacket());
+                    break;
+                case "Player-Disconnect":
+                    // TODO: Remove corresponding player from playerList in GameManager.
+                    break;
+
+            }
+
 
             // Delimit end of message
             stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF).Append(Constants.CRLF);
@@ -177,7 +215,7 @@ namespace NetworkModule
             Match m = Regex.Match(payload, Constants.CONTENTTYPEFORMAT);
             if (m.Success)
             {
-                UnityEngine.Log("Recieved Content-Type: " + m.Value.Split("Content-Type:")[1]);
+                UnityEngine.Debug.Log("Recieved Content-Type: " + m.Value.Split("Content-Type:")[1]);
                 string intermediate = m.Value.Split("Content-Type:")[1];
                 switch (intermediate)
                 {

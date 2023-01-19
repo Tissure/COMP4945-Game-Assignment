@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
     public void Update()
     {
         PacketHandler packet = new PacketHandler();
-        string payload = packet.serverBuildPacket(localPlayer.id,localPlayer.rb.position.x,localPlayer.rb.position.y);
+        string payload = packet.buildPacket("Player");
         Multicast multicast = new Multicast();
         multicast.Send(payload);
     }
