@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Assets.Scripts.Game;
 using UnityEngine;
 
 public class Goal : MonoBehaviour
 {
     public bool isTeam1Goal;
+    public AudioHandler audioHandler;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -20,6 +22,8 @@ public class Goal : MonoBehaviour
                 Debug.Log("Player 1 scored..!");
                 GameObject.Find("GameManager").GetComponent<GameManager>().Team2Scored();
             }
+            audioHandler.setBallGoal();
+            audioHandler.playOnce();
         }
     }
 }
