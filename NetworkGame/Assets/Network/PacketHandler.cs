@@ -30,26 +30,51 @@ namespace NetworkModule
             public const string YCOORDREGEX = @"\bYcoord:\d*\b";
         }
 
+        public string buildPlayerConnectionPacket()
+        {
+
+        }
+
         /// <summary>
         /// Helper Function to build Multi-Part bodypart
         /// </summary>
         /// <returns>MIME Multipart-Form Bodypart containing payload as a string.</returns>
-        public string buildPlayerBodyPart(string id, double xCoord, double yCoord)
+        public string buildPlayerBodyPart(string id, float xCoord, float yCoord)
         {
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
 
+            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
             // Header Info
-            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player").Append(Constants.CRLF).Append(Constants.CRLF);
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Playerlist").Append(Constants.CRLF).Append(Constants.CRLF);
 
             // Payload
             stringBuilder.AppendFormat(Constants.IDFORMAT, id).Append(Constants.CRLF);
             stringBuilder.AppendFormat(Constants.COORDFORMAT, "X", xCoord.ToString()).Append(Constants.CRLF);
             stringBuilder.AppendFormat(Constants.COORDFORMAT, "Y", yCoord.ToString()).Append(Constants.CRLF);
 
-            // Delimit end of message
-            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF).Append(Constants.CRLF);
-            stringBuilder.Append(Constants.EOT);
+            // Return payload
+            return stringBuilder.ToString();
+
+        }
+        public string buildPlayerListBodyPart(List<Player> playerList)
+        {
+            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
+            string payload = "";
+            StringBuilder stringBuilder = new StringBuilder(payload);
+
+            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
+
+            // Header Info
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "PlayerList").Append(Constants.CRLF).Append(Constants.CRLF);
+
+            // Payload
+            foreach(Paddle player in gameState.playerList)
+            {
+                stringBuilder.Append(buildPlayerBodyPart(player.id, player.rb.position.x, player.rb.position.y));
+            }
+
+            // Return payload
             return stringBuilder.ToString();
 
         }
@@ -65,7 +90,6 @@ namespace NetworkModule
             // Start of Payload
             stringBuilder.AppendFormat(Constants.COORDFORMAT, "X", xCoord.ToString()).Append(Constants.CRLF);
             stringBuilder.AppendFormat(Constants.COORDFORMAT, "Y", yCoord.ToString()).Append(Constants.CRLF);
-            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF).Append(Constants.CRLF);
 
             return stringBuilder.ToString();
         }
@@ -80,10 +104,7 @@ namespace NetworkModule
 
             stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
 
-            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player").Append(Constants.CRLF).Append(Constants.CRLF);
-            stringBuilder.AppendFormat(Constants.IDFORMAT, id).Append(Constants.CRLF);
-            stringBuilder.AppendFormat(Constants.COORDFORMAT, "X", xCoord).Append(Constants.CRLF);
-            stringBuilder.AppendFormat(Constants.COORDFORMAT, "Y", yCoord).Append(Constants.CRLF);
+            payload += buildPlayerBodyPart(id, xCoord, yCoord);
 
             // Delimit end of message
             stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF).Append(Constants.CRLF);
@@ -91,11 +112,6 @@ namespace NetworkModule
             return stringBuilder.ToString();
 
         }
-
-        /*    public void buildPacket(Player player)
-            {
-
-            }*/
 
         public int parseID(string payload)
         {
