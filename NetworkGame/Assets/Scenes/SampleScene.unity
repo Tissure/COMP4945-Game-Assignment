@@ -247,7 +247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd319c3ac0f563f4aa498c8cbe3150ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isPlayer1Goal: 0
+  isTeam1Goal: 0
 --- !u!1 &181029929
 GameObject:
   m_ObjectHideFlags: 0
@@ -372,7 +372,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd319c3ac0f563f4aa498c8cbe3150ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isPlayer1Goal: 1
+  isTeam1Goal: 1
 --- !u!1 &185832135
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,7 +510,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 185832135}
   m_CullTransparentMesh: 1
---- !u!1 &253812483
+--- !u!1 &298185122
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -518,32 +518,28 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 253812484}
-  - component: {fileID: 253812489}
-  - component: {fileID: 253812488}
-  - component: {fileID: 253812487}
-  - component: {fileID: 253812485}
+  - component: {fileID: 298185123}
   m_Layer: 0
-  m_Name: Player1
-  m_TagString: Player
+  m_Name: Players
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &253812484
+--- !u!4 &298185123
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 253812483}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -8, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 3, z: 1}
+  m_GameObject: {fileID: 298185122}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 298185123}
-  m_RootOrder: 0
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &253812485
 MonoBehaviour:
@@ -669,30 +665,41 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 298185123}
+  - component: {fileID: 487966982}
+  - component: {fileID: 487966981}
   m_Layer: 0
-  m_Name: Players
+  m_Name: Preloader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &298185123
+--- !u!114 &487966981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 487966980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4944dd74da93e8f49b3d199a9e6b6492, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &487966982
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 298185122}
+  m_GameObject: {fileID: 487966980}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 366.6327, y: 171.72327, z: -2.9604778}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 253812484}
-  - {fileID: 1473477333}
+  m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &489654363
 GameObject:
@@ -723,15 +730,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18bf13e76c24f41439af96ca9118ecb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPlayer: {fileID: 253812485}
+  localPlayer: {fileID: 0}
+  localPlayer2: {fileID: 0}
   playerList: []
   ball: {fileID: 1767236281}
-  player1Paddle: {fileID: 253812483}
-  player1Goal: {fileID: 181029929}
-  player2Paddle: {fileID: 1473477332}
-  player2Goal: {fileID: 89682183}
-  Player1Text: {fileID: 185832135}
-  Player2Text: {fileID: 1314449370}
+  Team1Goal: {fileID: 181029929}
+  Team2Goal: {fileID: 89682183}
+  Team1Text: {fileID: 185832135}
+  Team2Text: {fileID: 1314449370}
 --- !u!4 &489654365
 Transform:
   m_ObjectHideFlags: 0

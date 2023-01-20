@@ -31,6 +31,7 @@ public class Preloader : MonoBehaviour
     {
         multicast= new Multicast();
         multicast.initDefaultNetwork();
+        GameObject.Find("GameManager").GetComponent<GameManager>().initDefaultGameState();
     }
 
     void Update() {
