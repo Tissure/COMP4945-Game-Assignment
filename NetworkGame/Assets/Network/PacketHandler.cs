@@ -30,16 +30,33 @@ namespace NetworkModule
             public const string YCOORDREGEX = @"\bYcoord:\d*\b";
         }
 
+        public string buildPlayerDisconnectBodyPart()
+        {
+            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
+            string payload = "";
+            StringBuilder stringBuilder = new StringBuilder(payload);
+            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
+
+            // Header
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player-Disconnect").Append(Constants.CRLF).Append(Constants.CRLF);
+
+            // Payload
+            stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.localPlayer.id).Append(Constants.CRLF);
+            return stringBuilder.ToString();
+        }
+
         public string buildPlayerConnectIDBodyPart()
         {
             GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
             stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
-            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "New-PlayerID").Append(Constants.CRLF).Append(Constants.CRLF);
 
+            // Header
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "New-Player-ID").Append(Constants.CRLF).Append(Constants.CRLF);
+            
+            // Payload
             stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.generateUniqueID()).Append(Constants.CRLF);
-            //UnityEngine.Debug.Log(stringBuilder.ToString());
             return stringBuilder.ToString();    
         }
 
@@ -158,6 +175,7 @@ namespace NetworkModule
                     break;
                 case "Player-Disconnect":
                     // TODO: Remove corresponding player from playerList in GameManager.
+                    stringBuilder.Append(buildPlayerDisconnectBodyPart());
                     break;
 
             }
@@ -238,15 +256,20 @@ namespace NetworkModule
                 string intermediate = m.Value.Split("Content-Type:")[1];
                 switch (intermediate)
                 {
+                    case "Player-Connection":
+                        // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
+                        break;
                     case "Ball":
+                        // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
+                        break;
+                    case "PlayerList":
+                        // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
+                        break;
+                    case "New-Player-ID":
+                        // TODO: Recieving your new ID when connecting to a game.
                         break;
                     case "Player":
-                        break;
-                    case "Player-Connection":
-                        // TODO: Need to send payload containing their ID and current GameState
-                        break;
-                    case "New-PlayerID":
-
+                        // Packet sent every frame from GameManager.Update()
                         break;
                     case "Player-Disconnect":
                         // TODO: Remove corresponding player from playerList in GameManager.
