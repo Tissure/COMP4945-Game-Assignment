@@ -25,7 +25,7 @@ namespace NetworkModule
             public const string EOT = "\\4";
 
             // Player Information
-            public const string CONTENTTYPEREGEX = @"\bContent-Type:*\b";
+            public const string CONTENTTYPEREGEX = @"\bContent-Type:.*\b";
             public const string IDREGEX = @"\bid:\d*\b";
             public const string XCOORDREGEX = @"\bXcoord:\d*\b";
             public const string YCOORDREGEX = @"\bYcoord:\d*\b";
