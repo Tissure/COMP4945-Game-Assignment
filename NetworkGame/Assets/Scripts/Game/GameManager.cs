@@ -65,8 +65,7 @@ public class GameManager : MonoBehaviour
     public string generateUniqueID()
     {
         // Testing
-        //return (playerList.Count + 1).ToString();
-        return "222";
+        return (playerList.Count + 1).ToString();
     }
 
     public void Update()

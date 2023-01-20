@@ -30,17 +30,17 @@ namespace NetworkModule
             public const string YCOORDREGEX = @"\bYcoord:\d*\b";
         }
 
-        public void buildPlayerConnectIDBodyPart()
+        public string buildPlayerConnectIDBodyPart()
         {
             GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
             stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
-            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player-Connection-ID").Append(Constants.CRLF).Append(Constants.CRLF);
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "New-PlayerID").Append(Constants.CRLF).Append(Constants.CRLF);
 
-            stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.generateUniqueID());
-            UnityEngine.Debug.Log(stringBuilder.ToString());
-            //return stringBuilder.ToString();    
+            stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.generateUniqueID()).Append(Constants.CRLF);
+            //UnityEngine.Debug.Log(stringBuilder.ToString());
+            return stringBuilder.ToString();    
         }
 
         public string buildPlayerConnectionPacket()
@@ -55,7 +55,7 @@ namespace NetworkModule
 
             // Payload - Current GameState + New Player's ID
             // New Player's ID
-            buildPlayerConnectIDBodyPart();
+            stringBuilder.Append(buildPlayerConnectIDBodyPart());
             // Current List of Players
             stringBuilder.Append(buildPlayerListBodyPart(gameState.playerList));
             // Current Ball Position
@@ -245,7 +245,7 @@ namespace NetworkModule
                     case "Player-Connection":
                         // TODO: Need to send payload containing their ID and current GameState
                         break;
-                    case "Player-Connection-ID":
+                    case "New-PlayerID":
 
                         break;
                     case "Player-Disconnect":
