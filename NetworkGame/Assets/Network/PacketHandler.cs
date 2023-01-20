@@ -30,6 +30,19 @@ namespace NetworkModule
             public const string YCOORDREGEX = @"\bYcoord:\d*\b";
         }
 
+        public void buildPlayerConnectIDBodyPart()
+        {
+            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
+            string payload = "";
+            StringBuilder stringBuilder = new StringBuilder(payload);
+            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player-Connection-ID").Append(Constants.CRLF).Append(Constants.CRLF);
+
+            stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.generateUniqueID());
+            UnityEngine.Debug.Log(stringBuilder.ToString());
+            //return stringBuilder.ToString();    
+        }
+
         public string buildPlayerConnectionPacket()
         {
             GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
@@ -39,12 +52,18 @@ namespace NetworkModule
 
             // Header Info
             stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player-Connection").Append(Constants.CRLF).Append(Constants.CRLF);
+
+            // Payload - Current GameState + New Player's ID
+            // New Player's ID
+            buildPlayerConnectIDBodyPart();
+            // Current List of Players
             stringBuilder.Append(buildPlayerListBodyPart(gameState.playerList));
+            // Current Ball Position
             stringBuilder.Append(buildBallPositionBodyPart(gameState.ball.transform.position.x, gameState.ball.transform.position.y));
 
             // Delimit end of message
-            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF).Append(Constants.CRLF);
-            stringBuilder.Append(Constants.EOT);
+            //stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF).Append(Constants.CRLF);
+            //stringBuilder.Append(Constants.EOT);
 
             return stringBuilder.ToString();
 
@@ -120,10 +139,10 @@ namespace NetworkModule
             GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
-            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
+            //stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
 
-            // Header Info
-            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, packetType).Append(Constants.CRLF).Append(Constants.CRLF);
+            //// Header Info
+            //stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, packetType).Append(Constants.CRLF).Append(Constants.CRLF);
 
             // TODO: Append Payload based on packetType
             switch (packetType)
@@ -134,7 +153,7 @@ namespace NetworkModule
                     stringBuilder.Append(buildPlayerBodyPart(gameState.localPlayer.id.ToString(), gameState.localPlayer.rb.position.x, gameState.localPlayer.rb.position.y, "Player"));
                     break;
                 case "Player-Connection":
-                    // TODO: Need to send payload containing their ID and current GameState
+                    // TODO: Need to send payload containing their ID and current GameState - Done
                     stringBuilder.Append(buildPlayerConnectionPacket());
                     break;
                 case "Player-Disconnect":
@@ -145,7 +164,7 @@ namespace NetworkModule
 
 
             // Delimit end of message
-            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF).Append(Constants.CRLF);
+            stringBuilder.Append("--" + Constants.BOUNDARY + "--").Append(Constants.CRLF).Append(Constants.CRLF);
             stringBuilder.Append(Constants.EOT);
             return stringBuilder.ToString();
 
@@ -225,6 +244,9 @@ namespace NetworkModule
                         break;
                     case "Player-Connection":
                         // TODO: Need to send payload containing their ID and current GameState
+                        break;
+                    case "Player-Connection-ID":
+
                         break;
                     case "Player-Disconnect":
                         // TODO: Remove corresponding player from playerList in GameManager.

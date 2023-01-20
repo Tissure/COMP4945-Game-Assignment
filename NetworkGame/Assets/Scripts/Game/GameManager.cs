@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 
 using NetworkModule;
+using Unity.VisualScripting;
 
 public class GameManager : MonoBehaviour
 {
@@ -61,11 +62,18 @@ public class GameManager : MonoBehaviour
         player2Paddle.GetComponent<Paddle>().Reset();
     }
 
+    public string generateUniqueID()
+    {
+        // Testing
+        //return (playerList.Count + 1).ToString();
+        return "222";
+    }
+
     public void Update()
     {
         // MonoBehaviour Update() is called every frame.
         PacketHandler packet = new PacketHandler();
-        string payload = packet.buildPacket("Player");
+        string payload = packet.buildPacket("Player-Connection");
         Multicast multicast = new Multicast();
         multicast.Send(payload);
     }
