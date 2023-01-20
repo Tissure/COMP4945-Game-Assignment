@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using UnityEngine;
@@ -22,7 +19,7 @@ namespace NetworkModule {
         /// <summary>
         /// Initializes network with default IP and port number
         /// </summary>
-        public void initDefaultNetwork() {
+        public override void initDefaultNetwork()  {
             // Create endpoint
 
             // Initialize the multicast address group and multicast port.
@@ -81,7 +78,7 @@ namespace NetworkModule {
         /// <c>True</c> if messgae successfully sends.
         /// <c>False</c> otherwise
         /// </returns>
-        public bool Send(string payload) {
+        public override bool Send(string payload) {
             //if (socket == null) {
             //    System.Diagnostics.Debug.WriteLine("Network not initialized");
             //    return false;
@@ -112,7 +109,7 @@ namespace NetworkModule {
         /// Recieves Payload from Socket Connection Subscribed to Sender. 
         /// Delegate method: To be run in a background thread, to 'receive' constantly.
         /// </summary>
-        public void Receive() {
+        public override void Receive() {
             // Create Multicast Option to set later
             mcastOption = new MulticastOption(mcastAddress, localIP);
 

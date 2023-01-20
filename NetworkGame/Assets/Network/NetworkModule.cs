@@ -2,17 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CustomNetworkModule : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+namespace NetworkModule {
+    public abstract class CustomNetworkModule {
+        public abstract void initDefaultNetwork();
+        public abstract bool Send(string payload);
+        public abstract void Receive();
     }
 }

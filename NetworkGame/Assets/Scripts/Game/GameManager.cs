@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-
 using NetworkModule;
 using Unity.VisualScripting;
 
@@ -15,6 +14,20 @@ public class GameManager : MonoBehaviour
     public GameObject localPlayer;
     public GameObject remotePlayer;
     public List<GameObject> playerList = new List<GameObject>();
+
+    [Header("Ball")]
+    public GameObject ball;
+
+    [Header("Goal Hit Boxes")]
+    public GameObject Team1Goal;
+    public GameObject Team2Goal;
+
+    [Header("Score UI")]
+    public GameObject Team1Text;
+    public GameObject Team2Text;
+
+    private int Team1Score;
+    private int Team2Score;
 
     private static GameManager _instance;
     public static GameManager getInstance { get { return _instance; } }
@@ -69,22 +82,6 @@ public class GameManager : MonoBehaviour
         playerList[playerID] = player;
     }
 
-    [Header("Ball")]
-    public GameObject ball;
-
-    [Header("Player 1")]
-    public GameObject Team1Goal;
-
-    [Header("Player 2")]
-    public GameObject Team2Goal;
-
-    [Header("Score UI")]
-    public GameObject Team1Text;
-    public GameObject Team2Text;
-
-    private int Team1Score;
-    private int Team2Score;
-
     public void Team1Scored(){
         Team1Score++;
         Team1Text.GetComponent<TextMeshProUGUI>().text = Team1Score.ToString();
@@ -113,7 +110,7 @@ public class GameManager : MonoBehaviour
     {
         // MonoBehaviour Update() is called every frame.
         PacketHandler packet = new PacketHandler();
-        GameManager.getInstance.playerList.Add(localPlayer);
+        //GameManager.getInstance.playerList.Add(localPlayer);
         string payload = packet.buildPacket("Player-Connection");
         Multicast multicast = new Multicast();
         multicast.Send(payload);

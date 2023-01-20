@@ -41,7 +41,7 @@ namespace NetworkModule
             stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player-Disconnect").Append(Constants.CRLF).Append(Constants.CRLF);
 
             // Payload
-            stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.localPlayer.id).Append(Constants.CRLF);
+            stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.localPlayer.GetComponent<Paddle>().id).Append(Constants.CRLF);
             return stringBuilder.ToString();
         }
 
@@ -109,7 +109,7 @@ namespace NetworkModule
 
         }
 
-        public string buildPlayerListBodyPart(List<Paddle> playerList)
+        public string buildPlayerListBodyPart(List<GameObject> playerList)
         {
             GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
             string payload = "";
@@ -121,9 +121,9 @@ namespace NetworkModule
             stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "PlayerList").Append(Constants.CRLF).Append(Constants.CRLF);
 
             // Payload
-            foreach(Paddle player in gameState.playerList)
+            foreach(GameObject player in gameState.playerList)
             {
-                stringBuilder.Append(buildPlayerBodyPart(player.id.ToString(), player.rb.position.x, player.rb.position.y, "Player"));
+                stringBuilder.Append(buildPlayerBodyPart(player.GetComponent<Paddle>().id.ToString(), player.GetComponent<Paddle>().rb.position.x, player.GetComponent<Paddle>().rb.position.y, "Player"));
             }
 
             // Return payload
@@ -167,7 +167,7 @@ namespace NetworkModule
                 case "Ball":
                     break;
                 case "Player":
-                    stringBuilder.Append(buildPlayerBodyPart(gameState.localPlayer.id.ToString(), gameState.localPlayer.rb.position.x, gameState.localPlayer.rb.position.y, "Player"));
+                    stringBuilder.Append(buildPlayerBodyPart(gameState.localPlayer.GetComponent<Paddle>().id.ToString(), gameState.localPlayer.GetComponent<Paddle>().rb.position.x, gameState.localPlayer.GetComponent<Paddle>().rb.position.y, "Player"));
                     break;
                 case "Player-Connection":
                     // TODO: Need to send payload containing their ID and current GameState - Done
@@ -230,9 +230,9 @@ namespace NetworkModule
         public void setGameState(int playerID, double xcoord, double ycoord)
         {
             GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
-            foreach (Paddle player in gameState.playerList)
+            foreach (GameObject player in gameState.playerList)
             {
-                if (playerID == player.id)
+                if (playerID == player.GetComponent<Paddle>().id)
                 {
                     // Update this Player.
                 }
