@@ -230,13 +230,14 @@ namespace NetworkModule
         /// </summary>
         public void setGameState(int playerID, double xcoord, double ycoord)
         {
-            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
+            GameManager gameState = GameManager.getInstance;
+            //TODO https://stackoverflow.com/questions/53916533/setactive-can-only-be-called-from-the-main-thread
             foreach (GameObject player in gameState.playerList)
             {
-                if (playerID == player.GetComponent<Paddle>().id)
-                {
-                    // Update this Player.
-                }
+                //if (playerID == player.GetComponent<Paddle>().id)
+                //{
+                //    // Update this Player.
+                //}
             }
         }
 
