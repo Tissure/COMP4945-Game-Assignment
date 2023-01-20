@@ -9,8 +9,7 @@ using System.Threading;
 using UnityEngine;
 
 namespace NetworkModule {
-    public class Multicast : CustomNetworkModule
-    {
+    public class Multicast : CustomNetworkModule {
         private static IPAddress mcastAddress;
         private static int mcastPort;
         private static Socket mcastSocket;
@@ -40,12 +39,20 @@ namespace NetworkModule {
             try {
                 // Set local IPaddress to Any
                 localIP = IPAddress.Any;
-                //localIP = IPAddress.Parse("192.168.0.165");
+                //localIP = IPAddress.Parse("192.168.0.137"); // CHANGE TO LOCAL IP ON LAN ROUTER
                 Debug.Log(localIP.ToString());
+                // IPAddress.Any works sometimes
+                // Test:
+                // Both computers start with IPAddress.Any DOES NOT SEND/REC PACKETS
+                // Both computers switch to static IP DOES SEND/REC PACKETS
+                // One computer switches back to IPAddress.Any Other continues to run from previous test DOES SEND/REC PACKETS
+                // Other computer switches back to IPAddress.Any DOES SEND/REC PACKETS
+                // Both computers stop, wait 5-15 sec start at same time DOES SEND/REC PACKETS
+                // Both computers stop, wait 1-2 min start at same time DOES NOT SEND/REC PACKETS ??????????
 
                 // Create new Socket, defining the AddressFamily, SocketType, and ProtocolType
                 mcastSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
+                //mcastSocket.EnableBroadcast = true;
                 // Endpoint to Bind to
                 localEP = (EndPoint) new IPEndPoint(localIP, mcastPort);
                 // Endpoint to send to
