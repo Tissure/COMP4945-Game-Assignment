@@ -17,7 +17,7 @@ namespace NetworkModule
     {
         public static class Constants
         {
-            public const string BOUNDARY = "boundary";
+            public const string BOUNDARY = "--boundary";
             public const string CRLF = "\r\n";
             public const string CONTENTTYPEFORMAT = "Content-Type:{0}";
             public const string IDFORMAT = "id:{0}";
@@ -123,7 +123,7 @@ namespace NetworkModule
             // Payload
             foreach(Paddle player in gameState.playerList)
             {
-                stringBuilder.Append(buildPlayerBodyPart(player.id.ToString(), player.rb.position.x, player.rb.position.y, "playerList"));
+                stringBuilder.Append(buildPlayerBodyPart(player.id.ToString(), player.rb.position.x, player.rb.position.y, "Player"));
             }
 
             // Return payload
@@ -182,7 +182,7 @@ namespace NetworkModule
 
 
             // Delimit end of message
-            stringBuilder.Append("--" + Constants.BOUNDARY + "--").Append(Constants.CRLF).Append(Constants.CRLF);
+            stringBuilder.Append(Constants.BOUNDARY + "--").Append(Constants.CRLF).Append(Constants.CRLF);
             stringBuilder.Append(Constants.EOT);
             return stringBuilder.ToString();
 
