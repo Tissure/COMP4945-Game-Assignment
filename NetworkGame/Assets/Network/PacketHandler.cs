@@ -23,8 +23,9 @@ namespace NetworkModule
             public const string IDFORMAT = "id:{0}";
             public const string COORDFORMAT = "{0}coord:{1}";
             public const string EOT = "\\4";
-            
+
             // Player Information
+            public const string CONTENTTYPEREGEX = @"\bContent-Type:*\b";
             public const string IDREGEX = @"\bid:\d*\b";
             public const string XCOORDREGEX = @"\bXcoord:\d*\b";
             public const string YCOORDREGEX = @"\bYcoord:\d*\b";
@@ -249,7 +250,7 @@ namespace NetworkModule
             double yCoord = -1;
 
             // TODO: Detect Content-Type;
-            Match m = Regex.Match(payload, Constants.CONTENTTYPEFORMAT);
+            Match m = Regex.Match(payload, Constants.CONTENTTYPEREGEX);
             if (m.Success)
             {
                 UnityEngine.Debug.Log("Recieved Content-Type: " + m.Value.Split("Content-Type:")[1]);

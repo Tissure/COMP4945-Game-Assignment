@@ -116,7 +116,7 @@ namespace NetworkModule {
             // Set socket options. Subscribe (Add Membership) to Multicast Broadcast
             mcastSocket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, mcastOption);
 
-            byte[] message = new byte[1024];
+            byte[] message = new byte[2048];
 
             // Endpoint to recieve message from (Any Ip Address, Port: 0)
             remoteEP = new IPEndPoint(IPAddress.Any, 0);
@@ -125,7 +125,7 @@ namespace NetworkModule {
             // Recieved bytes
             int recv = mcastSocket.ReceiveFrom(message, ref remoteEP);
 
-            Packet packet = new Packet();
+            PacketHandler packet = new PacketHandler();
 
             while (recv != 0) {
                 Debug.Log("Recieved packets..\n" + packet.readPacket(Encoding.ASCII.GetString(message)));
