@@ -77,4 +77,9 @@ public class GameManager : MonoBehaviour
         multicast.Send(payload);
     }
 
+    public Paddle getLocalPlayer()
+    {
+        return localPlayer;
+    }
+
 }

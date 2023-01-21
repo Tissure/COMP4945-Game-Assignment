@@ -38,4 +38,14 @@ public class Paddle : MonoBehaviour
         rb.velocity = Vector2.zero;
         transform.position = startPos;
     }
+
+    public void setID(int id)
+    {
+        this.id = id;
+    }
+    public int getID()
+    {
+        return id;
+    }
+
 }

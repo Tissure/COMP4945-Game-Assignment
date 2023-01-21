@@ -15,6 +15,7 @@ namespace NetworkModule
 {
     public class PacketHandler
     {
+        GameManager GameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
         public static class Constants
         {
             public const string BOUNDARY = "boundary";
@@ -258,6 +259,7 @@ namespace NetworkModule
                 {
                     case "Player-Connection":
                         // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
+                        GameState.getLocalPlayer().setID(parseID(payload));
                         break;
                     case "Ball":
                         // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
@@ -290,6 +292,7 @@ namespace NetworkModule
             //return "";
 
         }
+
 
     }
 }
