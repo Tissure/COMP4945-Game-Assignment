@@ -248,7 +248,7 @@ namespace NetworkModule
             int id = -1;
             double xCoord = -1;
             double yCoord = -1;
-
+            UnityEngine.Debug.Log(string.Format(" IN READ PACKET\n"));
             // TODO: Detect Content-Type;
             Match m = Regex.Match(payload, Constants.CONTENTTYPEFORMAT);
             if (m.Success)
@@ -259,7 +259,8 @@ namespace NetworkModule
                 {
                     case "Player-Connection":
                         // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
-                        GameState.getLocalPlayer().setID(parseID(payload));
+                        GameState.getLocalPlayer().setID(11);
+                        UnityEngine.Debug.Log("HEREREERERERER");
                         break;
                     case "Ball":
                         // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
@@ -287,7 +288,7 @@ namespace NetworkModule
             // After having parsed the incoming payload, set the state of the GameManager
             setGameState(id, xCoord, yCoord);
 
-            return String.Format("Recieved Payload... [ID:{0} | XCOORD: {1} | YCOORD:{2}]", id.ToString(), xCoord.ToString(), yCoord.ToString());
+            return String.Format("Recieved Payloaddddd WTF ... [ID:{0} | XCOORD: {1} | YCOORD:{2}]", id.ToString(), xCoord.ToString(), yCoord.ToString());
 
             //return "";
 
