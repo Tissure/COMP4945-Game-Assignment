@@ -6,6 +6,8 @@ using System.Threading;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.VersionControl;
+
 namespace NetworkModule
 {
 
@@ -20,7 +22,7 @@ namespace NetworkModule
         private static IPEndPoint groupEP;
         private static EndPoint remoteEP;
         private static PacketHandler packet = new PacketHandler();
-      
+        private static string ip;
         private Queue<PacketHandler.Packet> packetQueue = new Queue<PacketHandler.Packet>();
         private object queueLock = new System.Object();
 
@@ -45,8 +47,9 @@ namespace NetworkModule
             try
             {
                 // Set local IPaddress to Any
-                localIP = IPAddress.Any;
-                //localIP = IPAddress.Parse("192.168.0.137"); // CHANGE TO LOCAL IP ON LAN ROUTER
+                //localIP = IPAddress.Any;
+                ip = LocalIPAddress();
+                localIP = IPAddress.Parse(ip); // CHANGE TO LOCAL IP ON LAN ROUTER
                 Debug.Log(localIP.ToString());
                 // IPAddress.Any works sometimes
                 // Test:
@@ -148,7 +151,8 @@ namespace NetworkModule
             
             while (recv != 0)
             { 
-                enqueuePacket(message);
+                enqueuePacket(message);                
+                message= new byte[2048];
              /*   Debug.Log("Recieved packets.. HERER\n" + packet.readPacket(Encoding.ASCII.GetString(message)));
                 Debug.Log("Recieved Packets.. \n" + Encoding.ASCII.GetString(message));*/
                 recv = mcastSocket.ReceiveFrom(message, ref remoteEP);
@@ -179,11 +183,35 @@ namespace NetworkModule
                 //Debug.Log("Inside PROCESSES PACKET QUQUQUQUEUEE"+ temp.Count);
                 packetQueue= new Queue<PacketHandler.Packet>();
             }
-            foreach (PacketHandler.Packet packet in temp)
+            foreach (PacketHandler.Packet packetTemp in temp)
             {
-                Debug.Log("MAIN THREAD READ98098"+Encoding.ASCII.GetString(packet.data));
+                packet.readPacket(Encoding.ASCII.GetString(packetTemp.data));
+                //Debug.Log("MAIN THREAD READ98098"+Encoding.ASCII.GetString(packetTemp.data));
             }
         }
+
+        public string LocalIPAddress()
+        {
+            IPHostEntry host;
+            string localIP = "0.0.0.0";
+            host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (IPAddress ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    localIP = ip.ToString();
+                    break;
+                }
+            }
+            return localIP;
+        }
+
+        public string GetIP()
+        {
+            return ip;
+        }
+        
+
     }
 }
 

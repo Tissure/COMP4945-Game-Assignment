@@ -146,7 +146,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9332e6c7faf9d1498a20f1517f29f9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isPlayer1: 0
+  isLocal: 0
   speed: 5
   rb: {fileID: 7689844277022368907}
   startPos: {x: 0, y: 0, z: 0}
+  id: 0

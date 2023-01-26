@@ -5,16 +5,20 @@ using UnityEngine;
 using UnityEngine.Events;
 using NetworkModule;
 using Unity.VisualScripting;
+using System;
 
 public class GameManager : MonoBehaviour
 {
+    Multicast multicast;
+    PacketHandler packet;
+
     GameObject PlayerPrefab;
     GameObject RemotePlayerPrefab;
 
     public GameObject localPlayer;
     public GameObject remotePlayer;
     public List<GameObject> playerList = new List<GameObject>();
-
+    
     [Header("Ball")]
     public GameObject ball;
 
@@ -29,6 +33,7 @@ public class GameManager : MonoBehaviour
     private int Team1Score;
     private int Team2Score;
 
+
     private static GameManager _instance;
     public static GameManager getInstance { get { return _instance; } }
     private void Awake()
@@ -40,6 +45,8 @@ public class GameManager : MonoBehaviour
         else
         {
             _instance = this;
+            multicast = GameObject.Find("Preloader").GetComponent<Multicast>();
+            packet = new PacketHandler();
         }
     }
 
@@ -56,31 +63,61 @@ public class GameManager : MonoBehaviour
     //For testing currently
     public void initDefaultGameState()
     {
-        playerList.Add(localPlayer);
-        InstantiatePlayer(0, 1);
-        //check if player list is more than 1
-        //if not pause game
-        playerList.Add(remotePlayer);
-        InstantiatePlayer(1, 2);
-
+        // Gets LocalIP and uses the last number of ip as ID   eg. 192.168.1.ID  
+        string uniqueID = GameObject.Find("Preloader").GetComponent<Preloader>().multicast.GetIP();
+              
+        // If playerList is even assign to team1, if odd assign team2
+        if (playerList.Count % 2 == 0)
+        {
+            localPlayer = InstantiatePlayer(uniqueID, 1);
+        } else
+        {
+            localPlayer = InstantiatePlayer(uniqueID, 2);
+        }
+        
     }
 
     //Instantiates a prefab for a specific playerid on the list
-    public void InstantiatePlayer(int playerID, int teamNum)
+    public GameObject InstantiatePlayer(string playerID, int teamNum)
     {
-        PlayerPrefab = Resources.Load("PlayerPrefab") as GameObject;
-        GameObject player = Instantiate(PlayerPrefab);
-        if (teamNum == 1)
+        bool newPlayer = true;
+        GameObject player = null;
+        foreach (GameObject tempPlayer in playerList)
         {
-            player.transform.position = new Vector2(-8, 0);
-            player.GetComponent<Paddle>().SetLocal(true);
+            if (tempPlayer.GetComponent<Paddle>().GetID() == playerID)
+            {
+                Debug.Log("PLAYER EXISTS");
+                newPlayer = false;
+                player = tempPlayer;
+                break;
+            }
         }
-        else
+
+        if (newPlayer)
         {
-            player.transform.position = new Vector2(8, 0);
-            player.GetComponent<Paddle>().SetLocal(false);
+            PlayerPrefab = Resources.Load("PlayerPrefab") as GameObject;
+             player = Instantiate(PlayerPrefab);
+            if (teamNum == 1)
+            {
+                player.transform.position = new Vector2(-8, 0);
+                //player.GetComponent<Paddle>().SetLocal(true);
+                player.GetComponent<Paddle>().SetID(playerID);
+                player.GetComponent<Paddle>().SetTeam(teamNum);
+            }
+            else
+            {
+                player.transform.position = new Vector2(8, 0);
+                //player.GetComponent<Paddle>().SetLocal(false);
+                player.GetComponent<Paddle>().SetID(playerID);
+                player.GetComponent<Paddle>().SetTeam(teamNum);
+            }
+        
+            playerList.Add(player);
+            return player;
         }
-        playerList[playerID] = player;
+
+        return player;
+       
     }
 
     public void Team1Scored()
@@ -113,12 +150,39 @@ public class GameManager : MonoBehaviour
     public void Update()
     {
         // MonoBehaviour Update() is called every frame.
-        PacketHandler packet = new PacketHandler();
+        
         //GameManager.getInstance.playerList.Add(localPlayer);
         string payload = packet.buildPacket("Player-Connection");
-        Multicast multicast = GameObject.Find("Preloader").GetComponent<Multicast>();
+        
         multicast.Send(payload);
     }
+
+    public void SendGameState()
+    {
+
+        multicast.Send(packet.buildPacket("Update-GameState"));
+    }
+
+    public int GetTeam1Score()
+    {
+        return Team1Score;
+    }
+
+    public void SetTeam1Score(int score)
+    {
+        Team1Score = score;
+    }
+
+    public int GetTeam2Score()
+    {
+        return Team2Score;
+    }
+
+    public void SetTeam2Score(int score)
+    {
+        Team2Score = score;
+    }
+
 
 }
 

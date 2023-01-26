@@ -4,33 +4,22 @@ using UnityEngine;
 
 public class Paddle : MonoBehaviour
 {
-    public bool isLocal;
-    public float speed;
+    private bool isLocal;
+    private float speed;
     public Rigidbody2D rb;
-    public Vector3 startPos;
+    private Vector3 startPos;
 
     // Player ID
-    public int id = 111;
+    private string id;
+    private int teamNum;
 
     private float movement;
 
-    public Paddle(int id)
-    {
-        this.id = id;
-        startPos = transform.position;
-    }
-
-    public Paddle(int id, float coordX, float coordY)
-    {
-        this.id = id;
-        rb.position = new Vector2(coordX, coordY);
-    }
-
-    void Start()
+/*    void Start()
     {
         startPos = transform.position;
     }
-
+*/
     public void SetLocal(bool local)
     {
         isLocal = local;
@@ -41,7 +30,7 @@ public class Paddle : MonoBehaviour
         return isLocal;
     }
 
-    // Update is called once per frame
+/*    // Update is called once per frame
     void Update()
     {
         if (isLocal)
@@ -54,7 +43,7 @@ public class Paddle : MonoBehaviour
         }
 
         rb.velocity = new Vector2(rb.velocity.x, movement * speed);
-    }
+    }*/
 
     public void Reset()
     {
@@ -62,9 +51,29 @@ public class Paddle : MonoBehaviour
         transform.position = startPos;
     }
 
-    public int GetID()
+    public string GetID()
     {
         return id;
     }
+    public void SetID(string ID)
+    {
+        this.id = ID;
+    }
+
+    public void SetTeam(int team)
+    {
+        this.teamNum = team;
+    }
+
+    public int GetTeam()
+    {
+        return teamNum;
+    }
+
+    public Rigidbody2D GetRB()
+    {
+        return rb;
+    }
+
 }
 

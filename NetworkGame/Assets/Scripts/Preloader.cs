@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 public class Preloader : MonoBehaviour
 {
-    Multicast multicast;
+    public Multicast multicast;
 
     public CustomNetworkModule createNetworkModule(string module)
     {
