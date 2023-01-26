@@ -138,7 +138,6 @@ public class GameManager : MonoBehaviour
     {
         ball.GetComponent<Ball>().Reset();
         PlayerPrefab.GetComponent<Paddle>().Reset();
-
     }
 
     public string generateUniqueID()
@@ -152,7 +151,7 @@ public class GameManager : MonoBehaviour
         // MonoBehaviour Update() is called every frame.
         
         //GameManager.getInstance.playerList.Add(localPlayer);
-        string payload = packet.buildPacket("Player-Connection");
+        string payload = packet.buildPacket("Player-Disconnect");
         
         multicast.Send(payload);
     }
@@ -183,5 +182,27 @@ public class GameManager : MonoBehaviour
         Team2Score = score;
     }
 
+    public void SetBall(float x, float y)
+    {
+        ball.GetComponent<Ball>().rb.position = new Vector2(x, y);
+    }
+
+    public void DisconnectPlayer(string playerID)
+    {
+        Debug.Log("trying to Disconnecting playerid" + playerID);
+        foreach (var player in playerList)
+        {
+            if (player.GetComponent<Paddle>().GetID() == playerID)
+            {
+                Debug.Log("Disconnecting playerid" + playerID);
+                playerList.Remove(player);
+            }
+            
+        }
+        
+    }
+    
+
+   
 
 }

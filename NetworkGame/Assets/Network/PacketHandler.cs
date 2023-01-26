@@ -204,7 +204,7 @@ namespace NetworkModule
             switch (packetType)
             {
                 case "Ball":
-                  //  stringBuilder.Append(buildBallPositionBodyPart(gameState.ball.GetComponent<Ball>().rb.position.x, gameState.ball.GetComponent<Ball>().rb.position.y));
+                    stringBuilder.Append(buildBallPositionBodyPart(gameState.ball.GetComponent<Ball>().rb.position.x, gameState.ball.GetComponent<Ball>().rb.position.y));
                     break;
                 case "Player":
                     //stringBuilder.Append(buildPlayerBodyPart(gameState.localPlayer.GetComponent<Paddle>().GetID(), gameState.localPlayer.GetComponent<Paddle>().GetRB().position.x, gameState.localPlayer.GetComponent<Paddle>().GetRB().position.y));
@@ -289,7 +289,7 @@ namespace NetworkModule
         /// </summary>
         public string readPacket(string payload)
         {
-            int id = -1;
+            string id;
             float xCoord = -1;
             float yCoord = -1;
             GameManager gameState = GameManager.getInstance;
@@ -312,7 +312,7 @@ namespace NetworkModule
                         // Current set to == for testing purpose
                         // This checks if incoming packet is from same if so it should reject but for testing its == 
                         // Change to != when testing
-                        if (gameState.localPlayer.GetComponent<Paddle>().GetID() == playerConnectionInfo[3].Split(':')[1])
+                        if (gameState.localPlayer.GetComponent<Paddle>().GetID() != playerConnectionInfo[3].Split(':')[1])
                         {
                             gameState.SendGameState();
                         }
@@ -320,17 +320,16 @@ namespace NetworkModule
                         break;
                     case "Ball":
                         // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
-                        UnityEngine.Debug.Log("BALL SACK HANDLER\n");
-                        UnityEngine.Debug.Log(payload);
+                        UnityEngine.Debug.Log("BALL SACK HANDLER\n");                        
                         string x = payload.Split("Xcoord:")[1];
                         x = x.Split('\n')[0];
-                        UnityEngine.Debug.Log(x);
+                        //UnityEngine.Debug.Log(x);
                         xCoord = float.Parse(x);
 
                         string y = payload.Split("Ycoord:")[1];
                         y = y.Split('\n')[0];
                         yCoord = float.Parse(y);
-                        //GameState.SetBall(xCoord, yCoord);
+                        gameState.SetBall(xCoord, yCoord);
                         //updateBallPosition();
                         break;
                     case "PlayerList":
@@ -349,6 +348,9 @@ namespace NetworkModule
                         // TODO: Remove corresponding player from playerList in GameManager.
                         // disconnect 
                         //getplayerID();
+                        id = payload.Split("id:")[1].Split("\n")[0];
+                        UnityEngine.Debug.Log(id);
+                        gameState.DisconnectPlayer(id);
                         //removePlayerFromList?
                         break;
                     case "Update-GameState":
