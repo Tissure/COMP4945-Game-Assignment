@@ -14,6 +14,18 @@ public class Paddle : MonoBehaviour
 
     private float movement;
 
+    public Paddle(int id)
+    {
+        this.id = id;
+        startPos = transform.position;
+    }
+
+    public Paddle(int id, float coordX, float coordY)
+    {
+        this.id = id;
+        rb.position = new Vector2(coordX, coordY);
+    }
+
     void Start()
     {
         startPos = transform.position;
@@ -24,6 +36,11 @@ public class Paddle : MonoBehaviour
         isLocal = local;
     }
 
+    public bool GetLocal()
+    {
+        return isLocal;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -31,16 +48,23 @@ public class Paddle : MonoBehaviour
         {
             movement = Input.GetAxisRaw("Vertical");
         }
-        //else
-        //{
-        //    movement = Input.GetAxisRaw("Vertical2");
-        //}
+        else
+        {
+            movement = Input.GetAxisRaw("Vertical2");
+        }
 
         rb.velocity = new Vector2(rb.velocity.x, movement * speed);
     }
 
-    public void Reset(){
+    public void Reset()
+    {
         rb.velocity = Vector2.zero;
         transform.position = startPos;
     }
+
+    public int GetID()
+    {
+        return id;
+    }
 }
+

@@ -28,19 +28,23 @@ public class Preloader : MonoBehaviour
     // Awake is called on object initialization
     void Awake()
     {
-        multicast= new Multicast();
+        multicast = GetComponent<Multicast>();
         multicast.initDefaultNetwork();
+        multicast.enabled = true;
         GameObject.Find("GameManager").GetComponent<GameManager>().initDefaultGameState();
     }
 
-    void Update() {
-       if (!Application.isPlaying) {
+    void Update()
+    {
+        if (!Application.isPlaying)
+        {
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) == true) {
+        if (Input.GetKeyDown(KeyCode.Space) == true)
+        {
             //multicast.Send();
-            
+
         }
     }
 }
