@@ -156,9 +156,9 @@ public class GameManager : MonoBehaviour
         // MonoBehaviour Update() is called every frame.
 
         //GameManager.getInstance.playerList.Add(localPlayer);
-        string payload = packet.buildPacket("Player");
-        Debug.Log(payload);
-        multicast.Send(payload);
+        //string payload = packet.buildPacket("Player");
+        //Debug.Log(payload);
+        //multicast.Send(payload);
     }
 
     public void SendGameState()
@@ -213,7 +213,7 @@ public class GameManager : MonoBehaviour
         {
             if (player.GetComponent<Paddle>().GetID() == playerID)
             {
-                Debug.Log("FREEEEZEEE");
+                //Debug.Log("FREEEEZEEE");
                 player.GetComponent<Paddle>().rb.position = new Vector2(coordX, coordY);
            
            

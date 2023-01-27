@@ -299,12 +299,12 @@ namespace NetworkModule
             float xCoord = -1;
             float yCoord = -1;
             GameManager gameState = GameManager.getInstance;
-            UnityEngine.Debug.Log(payload);
+            //UnityEngine.Debug.Log(payload);
             // TODO: Detect Content-Type;
             Match m = Regex.Match(payload, Constants.CONTENTTYPEREGEX);
             if (m.Success)
             {
-                UnityEngine.Debug.Log("Recieved Content-Type: " + m.Value.Split("Content-Type:")[1]);
+                //UnityEngine.Debug.Log("Recieved Content-Type: " + m.Value.Split("Content-Type:")[1]);
                 string intermediate = m.Value.Split("Content-Type:")[1];
                 switch (intermediate)
                 {
@@ -371,7 +371,7 @@ namespace NetworkModule
             // Current set to == for testing purpose
             // This checks if incoming packet is from same if so it should reject but for testing its == 
             // Change to != when testing
-            if (gameState.localPlayer.GetComponent<Paddle>().GetID() == playerMovementInfo[3].Split(':')[1])
+            if (gameState.localPlayer.GetComponent<Paddle>().GetID() != playerMovementInfo[3].Split(':')[1])
             {
                 gameState.UpdatePlayerPosition(playerMovementInfo[3].Split(':')[1], float.Parse(playerMovementInfo[5].Split(':')[1]), float.Parse(playerMovementInfo[6].Split(':')[1]));
             }
