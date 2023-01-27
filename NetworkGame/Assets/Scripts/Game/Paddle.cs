@@ -7,7 +7,7 @@ public class Paddle : MonoBehaviour
     private bool isLocal;
     private float speed;
     public Rigidbody2D rb;
-    private Vector3 startPos;
+    private Vector2 startPos;
 
     // Player ID
     private string id;
@@ -15,11 +15,13 @@ public class Paddle : MonoBehaviour
 
     private float movement;
 
-/*    void Start()
+   
+    void Start()
     {
+        speed = 10f;
         startPos = transform.position;
     }
-*/
+
     public void SetLocal(bool local)
     {
         isLocal = local;
@@ -30,7 +32,7 @@ public class Paddle : MonoBehaviour
         return isLocal;
     }
 
-/*    // Update is called once per frame
+    // Update is called once per frame
     void Update()
     {
         if (isLocal)
@@ -43,7 +45,7 @@ public class Paddle : MonoBehaviour
         }
 
         rb.velocity = new Vector2(rb.velocity.x, movement * speed);
-    }*/
+    }
 
     public void Reset()
     {

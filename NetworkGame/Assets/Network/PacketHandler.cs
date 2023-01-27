@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace NetworkModule
@@ -26,8 +27,7 @@ namespace NetworkModule
             }
         }
 
-
-
+       
         public static class Constants
         {
             public const string BOUNDARY = "--boundary";
@@ -83,10 +83,11 @@ namespace NetworkModule
 
             // Header Info
             stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player-Connection").Append(Constants.CRLF).Append(Constants.CRLF);
-            stringBuilder.AppendFormat("New Player ID:"+ gameState.localPlayer.GetComponent<Paddle>().GetID()).Append(Constants.CRLF);
-            stringBuilder.AppendFormat("New Player X:" + gameState.localPlayer.GetComponent<Paddle>().rb.position.x).Append(Constants.CRLF);
-            stringBuilder.AppendFormat("New Player Y:" + gameState.localPlayer.GetComponent<Paddle>().rb.position.y).Append(Constants.CRLF);
-            stringBuilder.AppendFormat("New Player Team:" + gameState.localPlayer.GetComponent<Paddle>().GetTeam()).Append(Constants.CRLF).Append(Constants.CRLF);
+
+            stringBuilder.AppendFormat("New Player ID:"+ gameState.GetUniqueID()).Append(Constants.CRLF);
+            /* stringBuilder.AppendFormat("New Player X:" + gameState.localPlayer.GetComponent<Paddle>().rb.position.x).Append(Constants.CRLF);
+             stringBuilder.AppendFormat("New Player Y:" + gameState.localPlayer.GetComponent<Paddle>().rb.position.y).Append(Constants.CRLF);
+             stringBuilder.AppendFormat("New Player Team:" + gameState.localPlayer.GetComponent<Paddle>().GetTeam()).Append(Constants.CRLF).Append(Constants.CRLF);*/
             // Payload - Current GameState + New Player's ID
             // New Player's ID
             //stringBuilder.Append(buildPlayerConnectIDBodyPart());
@@ -207,7 +208,12 @@ namespace NetworkModule
                     stringBuilder.Append(buildBallPositionBodyPart(gameState.ball.GetComponent<Ball>().rb.position.x, gameState.ball.GetComponent<Ball>().rb.position.y));
                     break;
                 case "Player":
-                    //stringBuilder.Append(buildPlayerBodyPart(gameState.localPlayer.GetComponent<Paddle>().GetID(), gameState.localPlayer.GetComponent<Paddle>().GetRB().position.x, gameState.localPlayer.GetComponent<Paddle>().GetRB().position.y));
+                    stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
+
+                    // Header Info
+                    stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player").Append(Constants.CRLF).Append(Constants.CRLF);
+
+                    stringBuilder.AppendFormat(buildPlayerBodyPart(gameState.localPlayer.GetComponent<Paddle>().GetID(), gameState.localPlayer.GetComponent<Paddle>().GetTeam(), gameState.localPlayer.GetComponent<Paddle>().rb.position.x, gameState.localPlayer.GetComponent<Paddle>().rb.position.y));
                     break;
                 case "Player-Connection":
                     // TODO: Need to send payload containing their ID and current GameState - Done
@@ -303,88 +309,20 @@ namespace NetworkModule
                 switch (intermediate)
                 {
                     case "Player-Connection":
-
-                        // SEND CURRENT STATE OF GAME;
-                        
-                        string[] playerConnectionInfo = payload.Split(Constants.CRLF);
-                        UnityEngine.Debug.Log("HERE " + playerConnectionInfo[3]);
-
-                        // Current set to == for testing purpose
-                        // This checks if incoming packet is from same if so it should reject but for testing its == 
-                        // Change to != when testing
-                        if (gameState.localPlayer.GetComponent<Paddle>().GetID() != playerConnectionInfo[3].Split(':')[1])
-                        {
-                            gameState.SendGameState();
-                        }
-
+                        processPlayerConnectionPacket(payload, gameState);                       
                         break;
-                    case "Ball":
-                        // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
-                        UnityEngine.Debug.Log("BALL SACK HANDLER\n");                        
-                        string x = payload.Split("Xcoord:")[1];
-                        x = x.Split('\n')[0];
-                        //UnityEngine.Debug.Log(x);
-                        xCoord = float.Parse(x);
-
-                        string y = payload.Split("Ycoord:")[1];
-                        y = y.Split('\n')[0];
-                        yCoord = float.Parse(y);
-                        gameState.SetBall(xCoord, yCoord);
-                        //updateBallPosition();
-                        break;
-                    case "PlayerList":
-                        // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
-
-                        break;
-                    case "New-Player-ID":
-                        // TODO: Recieving your new ID when connecting to a game.
-                        break;
+                    case "Ball":                        
+                        processBallPacket(payload, gameState);                        
+                        break;                                        
                     case "Player":
-                        // Packet sent every frame from GameManager.Update()
-                        //getplayerID();
-                        //updatePlayer(playerID);
+                        processPlayerPacket(payload, gameState);                        
                         break;
                     case "Player-Disconnect":
-                        // TODO: Remove corresponding player from playerList in GameManager.
-                        // disconnect 
-                        //getplayerID();
-                        id = payload.Split("id:")[1].Split("\n")[0];
-                        UnityEngine.Debug.Log(id);
-                        gameState.DisconnectPlayer(id);
-                        //removePlayerFromList?
+                        processPlayerDisconnectPacket(payload, gameState);                     
                         break;
                     case "Update-GameState":
-                        
-                        string[] updateGameStateInfo = payload.Split(Constants.CRLF);
-                        
-                        gameState.SetTeam1Score(Int32.Parse(updateGameStateInfo[3].Split(':')[1]));
-                        gameState.SetTeam2Score(Int32.Parse(updateGameStateInfo[4].Split(':')[1]));
-                        string ballPosition = updateGameStateInfo[5].Split(':')[1];
-                        gameState.ball.GetComponent<Ball>().rb.position = new Vector2(float.Parse(ballPosition.Split(' ')[0]), float.Parse(ballPosition.Split(' ')[1]));
-                        
-
-                        string[] playerListInfo = payload.Split(Constants.BOUNDARY+"--")[0].Split("PlayerList:")[1].Split(Constants.CRLF+Constants.CRLF);
-
-                        
-
-                        foreach (string playerInfo in playerListInfo.Skip(1))
-                        {
-                            UnityEngine.Debug.Log(playerInfo);
-                            string[] playerInfoLine = playerInfo.Split(Constants.CRLF);
-                /*            UnityEngine.Debug.Log(playerInfoLine[0]);
-                            UnityEngine.Debug.Log(playerInfoLine[1]);
-                            UnityEngine.Debug.Log(playerInfoLine[2]);
-                            UnityEngine.Debug.Log(playerInfoLine[3]);
-*/
-                            string playerID = playerInfoLine[0].Split(':')[1];
-
-
-                            int team = Int32.Parse(playerInfoLine[1].Split(':')[1]);
-
-                            GameObject player = gameState.InstantiatePlayer(playerID, team);
-                            player.transform.position = new Vector2(float.Parse(playerInfoLine[2].Split(':')[1]), float.Parse(playerInfoLine[3].Split(':')[1]));
-
-                        }
+                        processUpdateGameStatePacket(payload, gameState); 
+                       
                         //UnityEngine.Debug.Log(playerListInfo[1]);
                         break;
                 }
@@ -404,6 +342,67 @@ namespace NetworkModule
 
         }
 
+        void processPlayerConnectionPacket(string payload, GameManager gameState)
+        {           
+            
+            string[] playerConnectionInfo = payload.Split(Constants.CRLF);
+         
 
+            // Current set to == for testing purpose
+            // This checks if incoming packet is from same if so it should reject but for testing its == 
+            // Change to != when testing
+            if (gameState.localPlayer.GetComponent<Paddle>().GetID() != playerConnectionInfo[3].Split(':')[1])
+            {
+                gameState.SendGameState();
+            }
+
+        }
+
+        void processBallPacket(string payload, GameManager gameState)
+        { 
+            gameState.SetBall(float.Parse(payload.Split("Xcoord:")[1].Split('\n')[0]), float.Parse(payload.Split("Ycoord:")[1].Split('\n')[0]));
+        }
+
+        void processPlayerPacket(string payload, GameManager gameState)
+        {
+            //GameManager gameState = GameManager.getInstance;
+            string[] playerMovementInfo = payload.Split(Constants.CRLF);          
+
+            // Current set to == for testing purpose
+            // This checks if incoming packet is from same if so it should reject but for testing its == 
+            // Change to != when testing
+            if (gameState.localPlayer.GetComponent<Paddle>().GetID() == playerMovementInfo[3].Split(':')[1])
+            {
+                gameState.UpdatePlayerPosition(playerMovementInfo[3].Split(':')[1], float.Parse(playerMovementInfo[5].Split(':')[1]), float.Parse(playerMovementInfo[6].Split(':')[1]));
+            }
+        }
+
+        void processPlayerDisconnectPacket(string payload, GameManager gameState)
+        {
+            string id = payload.Split("id:")[1].Split("\n")[0];            
+            gameState.DisconnectPlayer(id);
+        }
+
+        void processUpdateGameStatePacket(string payload, GameManager gameState)
+        {
+            string[] updateGameStateInfo = payload.Split(Constants.CRLF);
+
+            gameState.SetTeam1Score(Int32.Parse(updateGameStateInfo[3].Split(':')[1]));
+            gameState.SetTeam2Score(Int32.Parse(updateGameStateInfo[4].Split(':')[1]));
+            string ballPosition = updateGameStateInfo[5].Split(':')[1];
+            gameState.ball.GetComponent<Ball>().rb.position = new Vector2(float.Parse(ballPosition.Split(' ')[0]), float.Parse(ballPosition.Split(' ')[1]));
+
+            string[] playerListInfo = payload.Split(Constants.BOUNDARY + "--")[0].Split("PlayerList:")[1].Split(Constants.CRLF + Constants.CRLF);
+
+            foreach (string playerInfo in playerListInfo.Skip(1))
+            {                
+                string[] playerInfoLine = playerInfo.Split(Constants.CRLF);    
+                string playerID = playerInfoLine[0].Split(':')[1];
+                int team = Int32.Parse(playerInfoLine[1].Split(':')[1]);
+
+                GameObject player = gameState.InstantiatePlayer(playerID, team);
+                player.transform.position = new Vector2(float.Parse(playerInfoLine[2].Split(':')[1]), float.Parse(playerInfoLine[3].Split(':')[1]));
+            }
+        }
     }
 }

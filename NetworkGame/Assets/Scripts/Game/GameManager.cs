@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
     private int Team1Score;
     private int Team2Score;
 
+    private string uniqueID;
 
     private static GameManager _instance;
     public static GameManager getInstance { get { return _instance; } }
@@ -63,9 +64,12 @@ public class GameManager : MonoBehaviour
     //For testing currently
     public void initDefaultGameState()
     {
+        Awake();
+        
         // Gets LocalIP and uses the last number of ip as ID   eg. 192.168.1.ID  
-        string uniqueID = GameObject.Find("Preloader").GetComponent<Preloader>().multicast.GetIP();
-              
+        uniqueID = multicast.GetIP();
+        multicast.Send(packet.buildPacket("Player-Connection"));
+        //string uniqueID = "192.168.1.111";
         // If playerList is even assign to team1, if odd assign team2
         if (playerList.Count % 2 == 0)
         {
@@ -74,6 +78,7 @@ public class GameManager : MonoBehaviour
         {
             localPlayer = InstantiatePlayer(uniqueID, 2);
         }
+        localPlayer.GetComponent<Paddle>().SetLocal(true);
         
     }
 
@@ -149,10 +154,10 @@ public class GameManager : MonoBehaviour
     public void Update()
     {
         // MonoBehaviour Update() is called every frame.
-        
+
         //GameManager.getInstance.playerList.Add(localPlayer);
-        string payload = packet.buildPacket("Player-Disconnect");
-        
+        string payload = packet.buildPacket("Player");
+        Debug.Log(payload);
         multicast.Send(payload);
     }
 
@@ -202,7 +207,24 @@ public class GameManager : MonoBehaviour
         
     }
     
+    public void UpdatePlayerPosition(string playerID, float coordX, float coordY) 
+    {
+        foreach (var player in playerList)
+        {
+            if (player.GetComponent<Paddle>().GetID() == playerID)
+            {
+                Debug.Log("FREEEEZEEE");
+                player.GetComponent<Paddle>().rb.position = new Vector2(coordX, coordY);
+           
+           
+            }
 
-   
+        }
+    }
+
+   public string GetUniqueID()
+    {
+        return uniqueID;
+    }
 
 }
