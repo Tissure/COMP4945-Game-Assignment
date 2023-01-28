@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using NetworkModule;
-
+using System;
 
 public class GameManager : MonoBehaviour
 {
@@ -71,10 +71,10 @@ public class GameManager : MonoBehaviour
         // If playerList is even assign to team1, if odd assign team2
         if (playerList.Count % 2 == 0)
         {
-            localPlayer = InstantiatePlayer(uniqueID, 2);
+            localPlayer = InstantiatePlayer(uniqueID, 1);
         } else
         {
-            localPlayer = InstantiatePlayer(uniqueID, 1);
+            localPlayer = InstantiatePlayer(uniqueID, 2);
         }
         localPlayer.GetComponent<Paddle>().SetLocal(true);
         
@@ -153,7 +153,7 @@ public class GameManager : MonoBehaviour
     public string generateUniqueID()
     {
         // Testing
-        return (playerList.Count + 1).ToString();
+        return Guid.NewGuid().ToString();
     }
 
     public void Update()

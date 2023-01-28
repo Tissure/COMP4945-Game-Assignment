@@ -46,10 +46,10 @@ namespace NetworkModule
             try
             {
                 // Set local IPaddress to Any
-                localIP = IPAddress.Any;
-                //ip = LocalIPAddress();
+                //localIP = IPAddress.Any;
+                ip = LocalIPAddress();
                 //ip = IPAddress.Any;
-                //localIP = IPAddress.Parse(ip); // CHANGE TO LOCAL IP ON LAN ROUTER
+                localIP = IPAddress.Parse(ip); // CHANGE TO LOCAL IP ON LAN ROUTER
                 Debug.Log(localIP.ToString());
                 // IPAddress.Any works sometimes
                 // Test:
