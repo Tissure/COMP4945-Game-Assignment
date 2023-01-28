@@ -58,7 +58,7 @@ namespace NetworkModule
                 // One computer switches back to IPAddress.Any Other continues to run from previous test DOES SEND/REC PACKETS
                 // Other computer switches back to IPAddress.Any DOES SEND/REC PACKETS
                 // Both computers stop, wait 5-15 sec start at same time DOES SEND/REC PACKETS
-                // Both computers stop, wait 1-2 min start at same time DOES NOT SEND/REC PACKETS ??????????
+                // Both computers stop, wait 1-2 min start at same time DOES NOT SEND/REC PACKETS ??????????git 
 
                 // Create new Socket, defining the AddressFamily, SocketType, and ProtocolType
                 mcastSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
