@@ -72,10 +72,10 @@ public class GameManager : MonoBehaviour
         // If playerList is even assign to team1, if odd assign team2
         if (playerList.Count % 2 == 0)
         {
-            localPlayer = InstantiatePlayer(uniqueID, 2);
+            localPlayer = InstantiatePlayer(uniqueID, 1);
         } else
         {
-            localPlayer = InstantiatePlayer(uniqueID, 1);
+            localPlayer = InstantiatePlayer(uniqueID, 2);
         }
         localPlayer.GetComponent<Paddle>().SetLocal(true);
         
@@ -129,6 +129,9 @@ public class GameManager : MonoBehaviour
         Team1Score++;
         Team1Text.GetComponent<TextMeshProUGUI>().text = Team1Score.ToString();
         ResetPosition();
+        string payload = packet.buildPacket("Ball");
+
+        multicast.Send(payload);
     }
 
     public void Team2Scored()
@@ -136,12 +139,16 @@ public class GameManager : MonoBehaviour
         Team2Score++;
         Team2Text.GetComponent<TextMeshProUGUI>().text = Team2Score.ToString();
         ResetPosition();
+        string payload = packet.buildPacket("Ball");
+
+        multicast.Send(payload);
     }
 
     private void ResetPosition()
     {
         ball.GetComponent<Ball>().Reset();
         PlayerPrefab.GetComponent<Paddle>().Reset();
+    
     }
 
     public string generateUniqueID()

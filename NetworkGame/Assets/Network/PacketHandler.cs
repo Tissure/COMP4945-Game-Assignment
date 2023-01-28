@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -348,13 +349,22 @@ namespace NetworkModule
         {           
             
             string[] playerConnectionInfo = payload.Split(Constants.CRLF);
-         
+
 
             // Current set to == for testing purpose
             // This checks if incoming packet is from same if so it should reject but for testing its == 
             // Change to != when testing
-            if (gameState.localPlayer.GetComponent<Paddle>().GetID() != playerConnectionInfo[3].Split(':')[1])
+            string newPlayerID = playerConnectionInfo[3].Split(':')[1];
+            if (gameState.localPlayer.GetComponent<Paddle>().GetID() != newPlayerID)
             {
+                if (gameState.playerList.Count % 2 == 0)
+                {
+                    gameState.InstantiatePlayer(newPlayerID, 1);
+                }
+                else
+                {
+                    gameState.InstantiatePlayer(newPlayerID, 2);
+                }
                 gameState.SendGameState();
             }
 
