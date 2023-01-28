@@ -39,7 +39,7 @@ namespace NetworkModule
             // as the values used by the sender.
 
             // Multicast Address that the reciever will 'subscribe' to
-            mcastAddress = IPAddress.Parse("230.0.0.1");
+            mcastAddress = IPAddress.Parse("230.0.0.10");
 
             // Multicast Port
             mcastPort = 11000;

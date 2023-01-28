@@ -150,6 +150,7 @@ namespace NetworkModule
 
         public string buildBallPositionBodyPart(float xCoord, float yCoord)
         {
+            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
 
@@ -161,7 +162,7 @@ namespace NetworkModule
             // Start of Payload
             stringBuilder.AppendFormat(Constants.COORDFORMAT, "X", xCoord.ToString()).Append(Constants.CRLF);
             stringBuilder.AppendFormat(Constants.COORDFORMAT, "Y", yCoord.ToString()).Append(Constants.CRLF);
-
+            stringBuilder.AppendFormat("Ball Velocity:{0} {1}", gameState.ball.GetComponent<Rigidbody2D>().velocity.x, gameState.ball.GetComponent<Rigidbody2D>().velocity.y).Append(Constants.CRLF);
             return stringBuilder.ToString();
         }
 
@@ -179,6 +180,7 @@ namespace NetworkModule
             stringBuilder.AppendFormat("Team2 Score:" + gameState.GetTeam2Score()).Append(Constants.CRLF);
 
             stringBuilder.Append("Ball:" + gameState.ball.GetComponent<Ball>().rb.position.x + " " + gameState.ball.GetComponent<Ball>().rb.position.y).Append(Constants.CRLF);
+            stringBuilder.AppendFormat("Ball Velocity:{0} {1}", gameState.ball.GetComponent<Rigidbody2D>().velocity.x, gameState.ball.GetComponent<Rigidbody2D>().velocity.y).Append(Constants.CRLF);
             stringBuilder.AppendFormat("PlayerList:").Append(Constants.CRLF);
             foreach (GameObject player in gameState.playerList)
             {
@@ -360,7 +362,10 @@ namespace NetworkModule
 
         void processBallPacket(string payload, GameManager gameState)
         { 
-            gameState.SetBall(float.Parse(payload.Split("Xcoord:")[1].Split('\n')[0]), float.Parse(payload.Split("Ycoord:")[1].Split('\n')[0]));
+            float speedX = float.Parse(payload.Split("Velocity:")[1].Split(' ')[0]);
+            float speedY = float.Parse(payload.Split("Velocity:")[1].Split(' ')[1].Split(Constants.CRLF)[0]);
+            Vector2 ballSpeed = new Vector2(speedX, speedY);
+            gameState.SetBall(float.Parse(payload.Split("Xcoord:")[1].Split('\n')[0]), float.Parse(payload.Split("Ycoord:")[1].Split('\n')[0]), ballSpeed);
         }
 
         void processPlayerPacket(string payload, GameManager gameState)
@@ -391,7 +396,10 @@ namespace NetworkModule
             gameState.SetTeam2Score(Int32.Parse(updateGameStateInfo[4].Split(':')[1]));
             string ballPosition = updateGameStateInfo[5].Split(':')[1];
             gameState.ball.GetComponent<Ball>().rb.position = new Vector2(float.Parse(ballPosition.Split(' ')[0]), float.Parse(ballPosition.Split(' ')[1]));
-
+            float speedX = float.Parse(payload.Split("Velocity:")[1].Split(' ')[0]);
+            float speedY = float.Parse(payload.Split("Velocity:")[1].Split(' ')[1].Split(Constants.CRLF)[0]);
+            Vector2 ballSpeed = new Vector2(speedX, speedY);
+            gameState.ball.GetComponent<Ball>().rb.velocity = ballSpeed;
             string[] playerListInfo = payload.Split(Constants.BOUNDARY + "--")[0].Split("PlayerList:")[1].Split(Constants.CRLF + Constants.CRLF);
 
             foreach (string playerInfo in playerListInfo.Skip(1))

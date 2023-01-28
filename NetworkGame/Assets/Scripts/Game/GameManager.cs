@@ -4,7 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using NetworkModule;
-using Unity.VisualScripting;
 using System;
 
 public class GameManager : MonoBehaviour
@@ -73,10 +72,10 @@ public class GameManager : MonoBehaviour
         // If playerList is even assign to team1, if odd assign team2
         if (playerList.Count % 2 == 0)
         {
-            localPlayer = InstantiatePlayer(uniqueID, 1);
+            localPlayer = InstantiatePlayer(uniqueID, 2);
         } else
         {
-            localPlayer = InstantiatePlayer(uniqueID, 2);
+            localPlayer = InstantiatePlayer(uniqueID, 1);
         }
         localPlayer.GetComponent<Paddle>().SetLocal(true);
         
@@ -156,9 +155,12 @@ public class GameManager : MonoBehaviour
         // MonoBehaviour Update() is called every frame.
 
         //GameManager.getInstance.playerList.Add(localPlayer);
-        //string payload = packet.buildPacket("Player");
+        string payload = packet.buildPacket("Player");
         //Debug.Log(payload);
-        //multicast.Send(payload);
+        multicast.Send(payload);
+
+
+
     }
 
     public void SendGameState()
@@ -187,9 +189,10 @@ public class GameManager : MonoBehaviour
         Team2Score = score;
     }
 
-    public void SetBall(float x, float y)
+    public void SetBall(float x, float y, Vector2 ballSpeed)
     {
         ball.GetComponent<Ball>().rb.position = new Vector2(x, y);
+        ball.GetComponent<Ball>().rb.velocity = ballSpeed;
     }
 
     public void DisconnectPlayer(string playerID)
