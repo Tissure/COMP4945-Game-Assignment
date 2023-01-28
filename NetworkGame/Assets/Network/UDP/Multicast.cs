@@ -4,9 +4,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.VersionControl;
+
 
 namespace NetworkModule
 {
@@ -47,9 +46,10 @@ namespace NetworkModule
             try
             {
                 // Set local IPaddress to Any
-                //localIP = IPAddress.Any;
-                ip = LocalIPAddress();
-                localIP = IPAddress.Parse(ip); // CHANGE TO LOCAL IP ON LAN ROUTER
+                localIP = IPAddress.Any;
+                //ip = LocalIPAddress();
+                //ip = IPAddress.Any;
+                //localIP = IPAddress.Parse(ip); // CHANGE TO LOCAL IP ON LAN ROUTER
                 Debug.Log(localIP.ToString());
                 // IPAddress.Any works sometimes
                 // Test:

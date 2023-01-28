@@ -1,17 +1,8 @@
 using System;
-using System.CodeDom;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Net.Mime;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace NetworkModule
@@ -359,11 +350,11 @@ namespace NetworkModule
             {
                 if (gameState.playerList.Count % 2 == 0)
                 {
-                    gameState.InstantiatePlayer(newPlayerID, 1);
+                    gameState.InstantiatePlayer(newPlayerID, 2);
                 }
                 else
                 {
-                    gameState.InstantiatePlayer(newPlayerID, 2);
+                    gameState.InstantiatePlayer(newPlayerID, 1);
                 }
                 gameState.SendGameState();
             }
@@ -419,7 +410,7 @@ namespace NetworkModule
                 int team = Int32.Parse(playerInfoLine[1].Split(':')[1]);
 
                 GameObject player = gameState.InstantiatePlayer(playerID, team);
-                player.transform.position = new Vector2(float.Parse(playerInfoLine[2].Split(':')[1]), float.Parse(playerInfoLine[3].Split(':')[1]));
+                player.GetComponent<Paddle>().rb.position = new Vector2(float.Parse(playerInfoLine[2].Split(':')[1]), float.Parse(playerInfoLine[3].Split(':')[1]));
             }
         }
     }

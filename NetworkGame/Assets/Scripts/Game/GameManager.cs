@@ -1,10 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using NetworkModule;
-using System;
+
 
 public class GameManager : MonoBehaviour
 {
@@ -66,16 +64,17 @@ public class GameManager : MonoBehaviour
         Awake();
         
         // Gets LocalIP and uses the last number of ip as ID   eg. 192.168.1.ID  
-        uniqueID = multicast.GetIP();
+        //uniqueID = multicast.GetIP();
+        uniqueID = generateUniqueID();
         multicast.Send(packet.buildPacket("Player-Connection"));
         //string uniqueID = "192.168.1.111";
         // If playerList is even assign to team1, if odd assign team2
         if (playerList.Count % 2 == 0)
         {
-            localPlayer = InstantiatePlayer(uniqueID, 1);
+            localPlayer = InstantiatePlayer(uniqueID, 2);
         } else
         {
-            localPlayer = InstantiatePlayer(uniqueID, 2);
+            localPlayer = InstantiatePlayer(uniqueID, 1);
         }
         localPlayer.GetComponent<Paddle>().SetLocal(true);
         
@@ -103,14 +102,14 @@ public class GameManager : MonoBehaviour
              player = Instantiate(PlayerPrefab);
             if (teamNum == 1)
             {
-                player.transform.position = new Vector2(-8, 0);
+                player.GetComponent<Paddle>().rb.position = new Vector2(-8, 0);
                 //player.GetComponent<Paddle>().SetLocal(true);
                 player.GetComponent<Paddle>().SetID(playerID);
                 player.GetComponent<Paddle>().SetTeam(teamNum);
             }
             else
             {
-                player.transform.position = new Vector2(8, 0);
+                player.GetComponent<Paddle>().rb.position = new Vector2(8, 0);
                 //player.GetComponent<Paddle>().SetLocal(false);
                 player.GetComponent<Paddle>().SetID(playerID);
                 player.GetComponent<Paddle>().SetTeam(teamNum);
