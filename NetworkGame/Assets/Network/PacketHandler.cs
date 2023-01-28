@@ -1,12 +1,6 @@
 using System;
-using System.CodeDom;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Net.Mime;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -15,6 +9,17 @@ namespace NetworkModule
 {
     public class PacketHandler
     {
+        public struct Packet
+        {
+            public byte[] data;
+
+            public Packet(byte[] data)
+            {
+                this.data = data;
+            }
+        }
+
+       
         public static class Constants
         {
             public const string BOUNDARY = "--boundary";
@@ -42,7 +47,7 @@ namespace NetworkModule
             stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player-Disconnect").Append(Constants.CRLF).Append(Constants.CRLF);
 
             // Payload
-            stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.localPlayer.GetComponent<Paddle>().id).Append(Constants.CRLF);
+            stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.localPlayer.GetComponent<Paddle>().GetID()).Append(Constants.CRLF);
             return stringBuilder.ToString();
         }
 
@@ -55,15 +60,15 @@ namespace NetworkModule
 
             // Header
             stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "New-Player-ID").Append(Constants.CRLF).Append(Constants.CRLF);
-            
+
             // Payload
             stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.generateUniqueID()).Append(Constants.CRLF);
-            return stringBuilder.ToString();    
+            return stringBuilder.ToString();
         }
 
         public string buildPlayerConnectionPacket()
         {
-            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
+            GameManager gameState = GameManager.getInstance;
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
             stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
@@ -71,17 +76,21 @@ namespace NetworkModule
             // Header Info
             stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player-Connection").Append(Constants.CRLF).Append(Constants.CRLF);
 
+            stringBuilder.AppendFormat("New Player ID:"+ gameState.GetUniqueID()).Append(Constants.CRLF);
+            /* stringBuilder.AppendFormat("New Player X:" + gameState.localPlayer.GetComponent<Paddle>().rb.position.x).Append(Constants.CRLF);
+             stringBuilder.AppendFormat("New Player Y:" + gameState.localPlayer.GetComponent<Paddle>().rb.position.y).Append(Constants.CRLF);
+             stringBuilder.AppendFormat("New Player Team:" + gameState.localPlayer.GetComponent<Paddle>().GetTeam()).Append(Constants.CRLF).Append(Constants.CRLF);*/
             // Payload - Current GameState + New Player's ID
             // New Player's ID
-            stringBuilder.Append(buildPlayerConnectIDBodyPart());
-            // Current List of Players
-            stringBuilder.Append(buildPlayerListBodyPart(gameState.playerList));
+            //stringBuilder.Append(buildPlayerConnectIDBodyPart());
             // Current Ball Position
-            stringBuilder.Append(buildBallPositionBodyPart(gameState.ball.transform.position.x, gameState.ball.transform.position.y));
+            //stringBuilder.Append(buildBallPositionBodyPart(gameState.ball.transform.position.x, gameState.ball.transform.position.y));
+            // Current List of Players
+            //stringBuilder.Append(buildPlayerListBodyPart(gameState.playerList));
 
             // Delimit end of message
             //stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF).Append(Constants.CRLF);
-            //stringBuilder.Append(Constants.EOT);
+            //stringBuilder.Append(Constants.EOT).Append(Constants.CRLF);
 
             return stringBuilder.ToString();
 
@@ -91,17 +100,14 @@ namespace NetworkModule
         /// Helper Function to build Multi-Part bodypart
         /// </summary>
         /// <returns>MIME Multipart-Form Bodypart containing payload as a string.</returns>
-        public string buildPlayerBodyPart(string id, float xCoord, float yCoord, string contentType)
+        public string buildPlayerBodyPart(string id, int team, float xCoord, float yCoord)
         {
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
 
-            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
-            // Header Info
-            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, contentType).Append(Constants.CRLF).Append(Constants.CRLF);
-
             // Payload
             stringBuilder.AppendFormat(Constants.IDFORMAT, id).Append(Constants.CRLF);
+            stringBuilder.AppendFormat("Player Team:" + team.ToString()).Append(Constants.CRLF);
             stringBuilder.AppendFormat(Constants.COORDFORMAT, "X", xCoord.ToString()).Append(Constants.CRLF);
             stringBuilder.AppendFormat(Constants.COORDFORMAT, "Y", yCoord.ToString()).Append(Constants.CRLF);
 
@@ -121,10 +127,12 @@ namespace NetworkModule
             // Header Info
             stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "PlayerList").Append(Constants.CRLF).Append(Constants.CRLF);
 
+            int i = 0;
             // Payload
-            foreach(GameObject player in gameState.playerList)
+            foreach (GameObject player in gameState.playerList)
             {
-                stringBuilder.Append(buildPlayerBodyPart(player.GetComponent<Paddle>().id.ToString(), player.GetComponent<Paddle>().rb.position.x, player.GetComponent<Paddle>().rb.position.y, "Player"));
+                i++;
+               // stringBuilder.Append(buildPlayerBodyPart(player.GetComponent<Paddle>().GetID(), player.GetComponent<Paddle>().rb.position.x, player.GetComponent<Paddle>().rb.position.y));
             }
 
             // Return payload
@@ -134,6 +142,7 @@ namespace NetworkModule
 
         public string buildBallPositionBodyPart(float xCoord, float yCoord)
         {
+            GameManager gameState = (GameManager)GameObject.Find("GameManager").GetComponent("GameManager");
             string payload = "";
             StringBuilder stringBuilder = new StringBuilder(payload);
 
@@ -145,6 +154,30 @@ namespace NetworkModule
             // Start of Payload
             stringBuilder.AppendFormat(Constants.COORDFORMAT, "X", xCoord.ToString()).Append(Constants.CRLF);
             stringBuilder.AppendFormat(Constants.COORDFORMAT, "Y", yCoord.ToString()).Append(Constants.CRLF);
+            stringBuilder.AppendFormat("Ball Velocity:{0} {1}", gameState.ball.GetComponent<Rigidbody2D>().velocity.x, gameState.ball.GetComponent<Rigidbody2D>().velocity.y).Append(Constants.CRLF);
+            return stringBuilder.ToString();
+        }
+
+        public string buildUpdateGameStatePacket()
+        {
+            GameManager gameState = GameManager.getInstance;
+            string payload = "";
+            StringBuilder stringBuilder = new StringBuilder(payload);
+
+            stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
+
+            stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Update-GameState").Append(Constants.CRLF).Append(Constants.CRLF);
+
+            stringBuilder.AppendFormat("Team1 Score:" + gameState.GetTeam1Score()).Append(Constants.CRLF);
+            stringBuilder.AppendFormat("Team2 Score:" + gameState.GetTeam2Score()).Append(Constants.CRLF);
+
+            stringBuilder.Append("Ball:" + gameState.ball.GetComponent<Ball>().rb.position.x + " " + gameState.ball.GetComponent<Ball>().rb.position.y).Append(Constants.CRLF);
+            stringBuilder.AppendFormat("Ball Velocity:{0} {1}", gameState.ball.GetComponent<Rigidbody2D>().velocity.x, gameState.ball.GetComponent<Rigidbody2D>().velocity.y).Append(Constants.CRLF);
+            stringBuilder.AppendFormat("PlayerList:").Append(Constants.CRLF);
+            foreach (GameObject player in gameState.playerList)
+            {
+                stringBuilder.Append(Constants.CRLF).Append(buildPlayerBodyPart(player.GetComponent<Paddle>().GetID(), player.GetComponent<Paddle>().GetTeam(), player.GetComponent<Paddle>().rb.position.x, player.GetComponent<Paddle>().rb.position.y));
+            }
 
             return stringBuilder.ToString();
         }
@@ -166,9 +199,15 @@ namespace NetworkModule
             switch (packetType)
             {
                 case "Ball":
+                    stringBuilder.Append(buildBallPositionBodyPart(gameState.ball.GetComponent<Ball>().rb.position.x, gameState.ball.GetComponent<Ball>().rb.position.y));
                     break;
                 case "Player":
-                    stringBuilder.Append(buildPlayerBodyPart(gameState.localPlayer.GetComponent<Paddle>().id.ToString(), gameState.localPlayer.GetComponent<Paddle>().rb.position.x, gameState.localPlayer.GetComponent<Paddle>().rb.position.y, "Player"));
+                    stringBuilder.Append(Constants.BOUNDARY).Append(Constants.CRLF);
+
+                    // Header Info
+                    stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "Player").Append(Constants.CRLF).Append(Constants.CRLF);
+
+                    stringBuilder.AppendFormat(buildPlayerBodyPart(gameState.localPlayer.GetComponent<Paddle>().GetID(), gameState.localPlayer.GetComponent<Paddle>().GetTeam(), gameState.localPlayer.GetComponent<Paddle>().rb.position.x, gameState.localPlayer.GetComponent<Paddle>().rb.position.y));
                     break;
                 case "Player-Connection":
                     // TODO: Need to send payload containing their ID and current GameState - Done
@@ -177,6 +216,10 @@ namespace NetworkModule
                 case "Player-Disconnect":
                     // TODO: Remove corresponding player from playerList in GameManager.
                     stringBuilder.Append(buildPlayerDisconnectBodyPart());
+                    break;
+                case "Update-GameState":
+                    // TODO New player has joined Send UPDATE;
+                    stringBuilder.Append(buildUpdateGameStatePacket());
                     break;
 
             }
@@ -201,26 +244,26 @@ namespace NetworkModule
             return id;
         }
 
-        public double parseXCoord(string payload)
+        public float parseXCoord(string payload)
         {
-            double XCoord = 0;
+            float XCoord = 0;
             Match m = Regex.Match(payload, Constants.XCOORDREGEX);
             if (m.Success)
             {
                 UnityEngine.Debug.Log("XCOORD: " + m.Value.Split("Xcoord:")[1]);
-                XCoord = Double.Parse(m.Value.Split("Xcoord:")[1]);
+                XCoord = float.Parse(m.Value.Split("Xcoord:")[1]);
             }
             return XCoord;
         }
 
-        public double parseYCoord(string payload)
+        public float parseYCoord(string payload)
         {
-            double YCoord = 0;
+            float YCoord = 0;
             Match m = Regex.Match(payload, Constants.YCOORDREGEX);
             if (m.Success)
             {
                 UnityEngine.Debug.Log("YCOORD: " + m.Value.Split("Ycoord:")[1]);
-                YCoord = Double.Parse(m.Value.Split("Ycoord:")[1]);
+                YCoord = float.Parse(m.Value.Split("Ycoord:")[1]);
             }
             return YCoord;
         }
@@ -246,52 +289,129 @@ namespace NetworkModule
         /// </summary>
         public string readPacket(string payload)
         {
-            int id = -1;
-            double xCoord = -1;
-            double yCoord = -1;
-
+            string id;
+            float xCoord = -1;
+            float yCoord = -1;
+            GameManager gameState = GameManager.getInstance;
+            //UnityEngine.Debug.Log(payload);
             // TODO: Detect Content-Type;
             Match m = Regex.Match(payload, Constants.CONTENTTYPEREGEX);
             if (m.Success)
             {
-                UnityEngine.Debug.Log("Recieved Content-Type: " + m.Value.Split("Content-Type:")[1]);
+                //UnityEngine.Debug.Log("Recieved Content-Type: " + m.Value.Split("Content-Type:")[1]);
                 string intermediate = m.Value.Split("Content-Type:")[1];
                 switch (intermediate)
                 {
                     case "Player-Connection":
-                        // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
+                        processPlayerConnectionPacket(payload, gameState);                       
                         break;
-                    case "Ball":
-                        // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
-                        break;
-                    case "PlayerList":
-                        // TODO: Parsing GameState: Part of "GameState" recieved when making connection to a Game.
-                        break;
-                    case "New-Player-ID":
-                        // TODO: Recieving your new ID when connecting to a game.
-                        break;
+                    case "Ball":                        
+                        processBallPacket(payload, gameState);                        
+                        break;                                        
                     case "Player":
-                        // Packet sent every frame from GameManager.Update()
+                        processPlayerPacket(payload, gameState);                        
                         break;
                     case "Player-Disconnect":
-                        // TODO: Remove corresponding player from playerList in GameManager.
+                        processPlayerDisconnectPacket(payload, gameState);                     
+                        break;
+                    case "Update-GameState":
+                        processUpdateGameStatePacket(payload, gameState); 
+                       
+                        //UnityEngine.Debug.Log(playerListInfo[1]);
                         break;
                 }
             }
 
-            id = parseID(payload);
+/*            id = parseID(payload);
             xCoord = parseXCoord(payload);
-            yCoord = parseYCoord(payload);
+            yCoord = parseYCoord(payload);*/
 
 
             // After having parsed the incoming payload, set the state of the GameManager
-            setGameState(id, xCoord, yCoord);
+            //setGameState(id, xCoord, yCoord);
 
-            return String.Format("Recieved Payload... [ID:{0} | XCOORD: {1} | YCOORD:{2}]", id.ToString(), xCoord.ToString(), yCoord.ToString());
+            //return String.Format("Recieved Payload... [ID:{0} | XCOORD: {1} | YCOORD:{2}]", id.ToString(), xCoord.ToString(), yCoord.ToString());
 
-            //return "";
+            return "x:" + xCoord + '\n' + "y:" + yCoord;
 
         }
 
+        void processPlayerConnectionPacket(string payload, GameManager gameState)
+        {           
+            
+            string[] playerConnectionInfo = payload.Split(Constants.CRLF);
+
+
+            // Current set to == for testing purpose
+            // This checks if incoming packet is from same if so it should reject but for testing its == 
+            // Change to != when testing
+            string newPlayerID = playerConnectionInfo[3].Split(':')[1];
+            if (gameState.localPlayer.GetComponent<Paddle>().GetID() != newPlayerID)
+            {
+                if (gameState.playerList.Count % 2 == 0)
+                {
+                    gameState.InstantiatePlayer(newPlayerID, 2);
+                }
+                else
+                {
+                    gameState.InstantiatePlayer(newPlayerID, 1);
+                }
+                gameState.SendGameState();
+            }
+
+        }
+
+        void processBallPacket(string payload, GameManager gameState)
+        { 
+            float speedX = float.Parse(payload.Split("Velocity:")[1].Split(' ')[0]);
+            float speedY = float.Parse(payload.Split("Velocity:")[1].Split(' ')[1].Split(Constants.CRLF)[0]);
+            Vector2 ballSpeed = new Vector2(speedX, speedY);
+            gameState.SetBall(float.Parse(payload.Split("Xcoord:")[1].Split('\n')[0]), float.Parse(payload.Split("Ycoord:")[1].Split('\n')[0]), ballSpeed);
+        }
+
+        void processPlayerPacket(string payload, GameManager gameState)
+        {
+            //GameManager gameState = GameManager.getInstance;
+            string[] playerMovementInfo = payload.Split(Constants.CRLF);          
+
+            // Current set to == for testing purpose
+            // This checks if incoming packet is from same if so it should reject but for testing its == 
+            // Change to != when testing
+            if (gameState.localPlayer.GetComponent<Paddle>().GetID() != playerMovementInfo[3].Split(':')[1])
+            {
+                gameState.UpdatePlayerPosition(playerMovementInfo[3].Split(':')[1], float.Parse(playerMovementInfo[5].Split(':')[1]), float.Parse(playerMovementInfo[6].Split(':')[1]));
+            }
+        }
+
+        void processPlayerDisconnectPacket(string payload, GameManager gameState)
+        {
+            string id = payload.Split("id:")[1].Split("\n")[0];            
+            gameState.DisconnectPlayer(id);
+        }
+
+        void processUpdateGameStatePacket(string payload, GameManager gameState)
+        {
+            string[] updateGameStateInfo = payload.Split(Constants.CRLF);
+
+            gameState.SetTeam1Score(Int32.Parse(updateGameStateInfo[3].Split(':')[1]));
+            gameState.SetTeam2Score(Int32.Parse(updateGameStateInfo[4].Split(':')[1]));
+            string ballPosition = updateGameStateInfo[5].Split(':')[1];
+            gameState.ball.GetComponent<Ball>().rb.position = new Vector2(float.Parse(ballPosition.Split(' ')[0]), float.Parse(ballPosition.Split(' ')[1]));
+            float speedX = float.Parse(payload.Split("Velocity:")[1].Split(' ')[0]);
+            float speedY = float.Parse(payload.Split("Velocity:")[1].Split(' ')[1].Split(Constants.CRLF)[0]);
+            Vector2 ballSpeed = new Vector2(speedX, speedY);
+            gameState.ball.GetComponent<Ball>().rb.velocity = ballSpeed;
+            string[] playerListInfo = payload.Split(Constants.BOUNDARY + "--")[0].Split("PlayerList:")[1].Split(Constants.CRLF + Constants.CRLF);
+
+            foreach (string playerInfo in playerListInfo.Skip(1))
+            {                
+                string[] playerInfoLine = playerInfo.Split(Constants.CRLF);    
+                string playerID = playerInfoLine[0].Split(':')[1];
+                int team = Int32.Parse(playerInfoLine[1].Split(':')[1]);
+
+                GameObject player = gameState.InstantiatePlayer(playerID, team);
+                player.GetComponent<Paddle>().rb.position = new Vector2(float.Parse(playerInfoLine[2].Split(':')[1]), float.Parse(playerInfoLine[3].Split(':')[1]));
+            }
+        }
     }
 }

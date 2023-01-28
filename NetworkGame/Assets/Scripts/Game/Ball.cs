@@ -18,14 +18,14 @@ public class Ball : MonoBehaviour
     public void Reset()
     {
         rb.velocity = Vector2.zero;
-        transform.position = startpos;
+        rb.position = startpos;
         Launch();        
     }
 
     private void Launch(){
         // Launch the ball
-        float x = Random.Range(0, 2) == 0 ? -1 : 1;
-        float y = Random.Range(0, 2) == 0 ? -1 : 1;
-        rb.velocity = new Vector2(x * speed, y * speed);
+        //float x = Random.Range(0, 2) == 0 ? -1 : 1;
+        //float y = Random.Range(0, 2) == 0 ? -1 : 1;
+        rb.velocity = new Vector2(1 * speed, 1 * speed);
     }
 }

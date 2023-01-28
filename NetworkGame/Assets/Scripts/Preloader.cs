@@ -5,11 +5,10 @@ using NetworkModule;
 using System.Reflection;
 using System.IO;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Preloader : MonoBehaviour
 {
-    Multicast multicast;
+    public Multicast multicast;
 
     public CustomNetworkModule createNetworkModule(string module)
     {
@@ -28,19 +27,24 @@ public class Preloader : MonoBehaviour
     // Awake is called on object initialization
     void Awake()
     {
-        multicast= new Multicast();
+        multicast = GetComponent<Multicast>();
         multicast.initDefaultNetwork();
+        multicast.enabled = true;
+        //GameManager.getInstance.initDefaultGameState(); 
         GameObject.Find("GameManager").GetComponent<GameManager>().initDefaultGameState();
     }
 
-    void Update() {
-       if (!Application.isPlaying) {
+    void Update()
+    {
+        if (!Application.isPlaying)
+        {
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) == true) {
+        if (Input.GetKeyDown(KeyCode.Space) == true)
+        {
             //multicast.Send();
-            
+
         }
     }
 }

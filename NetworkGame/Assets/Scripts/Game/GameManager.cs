@@ -1,20 +1,21 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using NetworkModule;
-using Unity.VisualScripting;
+using System;
 
 public class GameManager : MonoBehaviour
 {
+    Multicast multicast;
+    PacketHandler packet;
+
     GameObject PlayerPrefab;
     GameObject RemotePlayerPrefab;
 
     public GameObject localPlayer;
     public GameObject remotePlayer;
     public List<GameObject> playerList = new List<GameObject>();
-
+    
     [Header("Ball")]
     public GameObject ball;
 
@@ -29,17 +30,21 @@ public class GameManager : MonoBehaviour
     private int Team1Score;
     private int Team2Score;
 
+    private string uniqueID;
+
     private static GameManager _instance;
     public static GameManager getInstance { get { return _instance; } }
     private void Awake()
     {
-        if (_instance !=null && _instance != this) 
+        if (_instance != null && _instance != this)
         {
             Destroy(this);
-        } 
+        }
         else
         {
             _instance = this;
+            multicast = GameObject.Find("Preloader").GetComponent<Multicast>();
+            packet = new PacketHandler();
         }
     }
 
@@ -56,64 +61,179 @@ public class GameManager : MonoBehaviour
     //For testing currently
     public void initDefaultGameState()
     {
-        playerList.Add(localPlayer);
-        InstantiatePlayer(0, 1);
-        //check if player list is more than 1
-        //if not pause game
-        playerList.Add(remotePlayer);
-        InstantiatePlayer(1, 2);
-
+        Awake();
+        
+        // Gets LocalIP and uses the last number of ip as ID   eg. 192.168.1.ID  
+        //uniqueID = multicast.GetIP();
+        uniqueID = generateUniqueID();
+        multicast.Send(packet.buildPacket("Player-Connection"));
+        //string uniqueID = "192.168.1.111";
+        // If playerList is even assign to team1, if odd assign team2
+        if (playerList.Count % 2 == 0)
+        {
+            localPlayer = InstantiatePlayer(uniqueID, 1);
+        } else
+        {
+            localPlayer = InstantiatePlayer(uniqueID, 2);
+        }
+        localPlayer.GetComponent<Paddle>().SetLocal(true);
+        
     }
 
     //Instantiates a prefab for a specific playerid on the list
-    void InstantiatePlayer(int playerID, int teamNum)
+    public GameObject InstantiatePlayer(string playerID, int teamNum)
     {
-        PlayerPrefab = Resources.Load("PlayerPrefab") as GameObject;
-        GameObject player = Instantiate(PlayerPrefab);
-        if (teamNum == 1)
+        bool newPlayer = true;
+        GameObject player = null;
+        foreach (GameObject tempPlayer in playerList)
         {
-            player.transform.position = new Vector2(-8, 0);
-            player.GetComponent<Paddle>().SetLocal(true);
-        } else
-        {
-            player.transform.position = new Vector2(8, 0);
-            player.GetComponent<Paddle>().SetLocal(false);
+            if (tempPlayer.GetComponent<Paddle>().GetID() == playerID)
+            {
+                Debug.Log("PLAYER EXISTS");
+                newPlayer = false;
+                player = tempPlayer;
+                break;
+            }
         }
-        playerList[playerID] = player;
+
+        if (newPlayer)
+        {
+            PlayerPrefab = Resources.Load("PlayerPrefab") as GameObject;
+             player = Instantiate(PlayerPrefab);
+            if (teamNum == 1)
+            {
+                player.GetComponent<Paddle>().rb.position = new Vector2(-8, 0);
+                //player.GetComponent<Paddle>().SetLocal(true);
+                player.GetComponent<Paddle>().SetID(playerID);
+                player.GetComponent<Paddle>().SetTeam(teamNum);
+            }
+            else
+            {
+                player.GetComponent<Paddle>().rb.position = new Vector2(8, 0);
+                //player.GetComponent<Paddle>().SetLocal(false);
+                player.GetComponent<Paddle>().SetID(playerID);
+                player.GetComponent<Paddle>().SetTeam(teamNum);
+            }
+        
+            playerList.Add(player);
+            return player;
+        }
+
+        return player;
+       
     }
 
-    public void Team1Scored(){
+    public void Team1Scored()
+    {
         Team1Score++;
         Team1Text.GetComponent<TextMeshProUGUI>().text = Team1Score.ToString();
         ResetPosition();
+        string payload = packet.buildPacket("Ball");
+
+        multicast.Send(payload);
     }
 
-    public void Team2Scored(){
+    public void Team2Scored()
+    {
         Team2Score++;
         Team2Text.GetComponent<TextMeshProUGUI>().text = Team2Score.ToString();
         ResetPosition();
+        string payload = packet.buildPacket("Ball");
+
+        multicast.Send(payload);
     }
 
-    private void ResetPosition(){
+    private void ResetPosition()
+    {
         ball.GetComponent<Ball>().Reset();
         PlayerPrefab.GetComponent<Paddle>().Reset();
-        
+    
     }
 
     public string generateUniqueID()
     {
         // Testing
-        return (playerList.Count + 1).ToString();
+        return Guid.NewGuid().ToString();
     }
 
     public void Update()
     {
         // MonoBehaviour Update() is called every frame.
-        PacketHandler packet = new PacketHandler();
+
         //GameManager.getInstance.playerList.Add(localPlayer);
-        string payload = packet.buildPacket("Player-Connection");
-        Multicast multicast = new Multicast();
+        string payload = packet.buildPacket("Player");
+        //Debug.Log(payload);
         multicast.Send(payload);
+
+
+
+    }
+
+    public void SendGameState()
+    {
+
+        multicast.Send(packet.buildPacket("Update-GameState"));
+    }
+
+    public int GetTeam1Score()
+    {
+        return Team1Score;
+    }
+
+    public void SetTeam1Score(int score)
+    {
+        Team1Score = score;
+    }
+
+    public int GetTeam2Score()
+    {
+        return Team2Score;
+    }
+
+    public void SetTeam2Score(int score)
+    {
+        Team2Score = score;
+    }
+
+    public void SetBall(float x, float y, Vector2 ballSpeed)
+    {
+        ball.GetComponent<Ball>().rb.position = new Vector2(x, y);
+        ball.GetComponent<Ball>().rb.velocity = ballSpeed;
+    }
+
+    public void DisconnectPlayer(string playerID)
+    {
+        Debug.Log("trying to Disconnecting playerid" + playerID);
+        foreach (var player in playerList)
+        {
+            if (player.GetComponent<Paddle>().GetID() == playerID)
+            {
+                Debug.Log("Disconnecting playerid" + playerID);
+                playerList.Remove(player);
+            }
+            
+        }
+        
+    }
+    
+    public void UpdatePlayerPosition(string playerID, float coordX, float coordY) 
+    {
+        foreach (var player in playerList)
+        {
+            if (player.GetComponent<Paddle>().GetID() == playerID)
+            {
+                //Debug.Log("FREEEEZEEE");
+                player.GetComponent<Paddle>().rb.position = new Vector2(coordX, coordY);
+           
+           
+            }
+
+        }
+    }
+
+   public string GetUniqueID()
+    {
+        return uniqueID;
     }
 
 }
