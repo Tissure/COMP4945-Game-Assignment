@@ -19,7 +19,7 @@ namespace Program
         private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost
             .CreateDefaultBuilder(args)
-            .UseUrls("http://10.65.78.218:5000")
+            .UseUrls("http://192.168.0.242:5000")
             .UseStartup<StartUp>();
     }
 

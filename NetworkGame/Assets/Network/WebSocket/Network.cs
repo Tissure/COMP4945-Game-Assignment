@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 //using System.Threading.Tasks;
 using System.Threading;
+using UnityEngine;
 //using NetworkModule;
 //using GameThread = _4945_A2.Threads.GameThread;
 //using P = _4945_A2.Packet.Packet;
@@ -13,7 +14,7 @@ using System.Threading;
 
 namespace NetworkModule
 {
-    public abstract class Network
+    public abstract class Network : MonoBehaviour
     {
         private const int PORT = 11000;
         private const string IP_ADDRESS = "230.0.0.2";
@@ -81,7 +82,7 @@ namespace NetworkModule
             }
 
             t = new Thread(Receive);
-            Console.WriteLine("EXECUTE");
+            UnityEngine.Debug.Log("EXECUTE");
             t.Start();
         }
         public abstract void Setup();

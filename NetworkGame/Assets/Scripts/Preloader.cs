@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class Preloader : MonoBehaviour
 {
-    public Multicast multicast;
+    public WebSocketNetwork multicast;
 
     public CustomNetworkModule createNetworkModule(string module)
     {
@@ -27,9 +27,10 @@ public class Preloader : MonoBehaviour
     // Awake is called on object initialization
     void Awake()
     {
-        multicast = GetComponent<Multicast>();
-        multicast.initDefaultNetwork();
+        multicast = GetComponent<WebSocketNetwork>();
+        multicast.Setup();
         multicast.enabled = true;
+        multicast.execute();
         //GameManager.getInstance.initDefaultGameState(); 
         GameObject.Find("GameManager").GetComponent<GameManager>().initDefaultGameState();
     }

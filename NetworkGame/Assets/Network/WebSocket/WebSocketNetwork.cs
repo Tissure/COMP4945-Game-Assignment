@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
-using TMPro;
+
+using UnityEngine;
+using static NetworkModule.PacketHandler;
 
 //using GameThread = _4945_A2.Threads.GameThread;
 //using P = _4945_A2.Packet.Packet;
@@ -15,11 +18,15 @@ namespace NetworkModule
     {
         private HubConnection connection;
 
-        private static WebSocketNetwork Instance = new WebSocketNetwork();
+        //private static WebSocketNetwork Instance = new WebSocketNetwork();
 
         private WebSocketNetwork() { }
 
-        public static WebSocketNetwork GetWebSocketNetwork() { return Instance; }
+        private Queue<PacketHandler.Packet> packetQueue = new Queue<PacketHandler.Packet>();
+        private object queueLock = new System.Object();
+        private static PacketHandler packet = new PacketHandler();
+
+        //public static WebSocketNetwork GetWebSocketNetwork() { return Instance; }
         //public WebSocketNetwork(GameThread gt) : base(gt)
         //{
         //}
@@ -41,7 +48,7 @@ namespace NetworkModule
 
         public override void Setup()
         {
-            connection = new HubConnectionBuilder().WithUrl("http://10.65.78.218:5000/gamehub").Build();
+            connection = new HubConnectionBuilder().WithUrl("http://192.168.0.242:5000/gamehub").Build();
             Console.WriteLine("Connection " + connection.ToString());
             connection.StartAsync().Wait();
             Console.WriteLine(connection.State + " " + connection.ConnectionId);
@@ -51,10 +58,40 @@ namespace NetworkModule
         {
             connection.On("RecievePacket", (byte[] packet) =>
             {
-                PacketHandler.Packet p = new PacketHandler.Packet(packet);
-                Console.WriteLine("RECIEVED: " + Encoding.ASCII.GetString(p.data));
+               enqueuePacket(packet);
             });
         }
+
+        void enqueuePacket(byte[] data)
+        {
+            lock (queueLock)
+            {
+                packetQueue.Enqueue(new PacketHandler.Packet(data));
+            }
+        }
+
+        private void Update()
+        {
+            processPackets();
+        }
+
+        void processPackets()
+        {
+            Queue<PacketHandler.Packet> temp;
+
+            lock (queueLock)
+            {
+                temp = packetQueue;
+                //Debug.Log("Inside PROCESSES PACKET QUQUQUQUEUEE"+ temp.Count);
+                packetQueue = new Queue<PacketHandler.Packet>();
+            }
+            foreach (PacketHandler.Packet packetTemp in temp)
+            {
+                packet.readPacket(Encoding.ASCII.GetString(packetTemp.data));
+                //Debug.Log("MAIN THREAD READ98098"+Encoding.ASCII.GetString(packetTemp.data));
+            }
+        }
+
     }
 }
 
