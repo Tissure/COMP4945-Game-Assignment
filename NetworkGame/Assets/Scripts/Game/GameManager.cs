@@ -6,7 +6,7 @@ using System;
 
 public class GameManager : MonoBehaviour
 {
-    Multicast multicast;
+    WebSocketNetwork multicast = NetworkModule.WebSocketNetwork.GetWebSocketNetwork();
     PacketHandler packet;
 
     GameObject PlayerPrefab;
@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour
         else
         {
             _instance = this;
-            multicast = GameObject.Find("Preloader").GetComponent<Multicast>();
+            multicast = NetworkModule.WebSocketNetwork.GetWebSocketNetwork();
             packet = new PacketHandler();
         }
     }
@@ -71,10 +71,10 @@ public class GameManager : MonoBehaviour
         // If playerList is even assign to team1, if odd assign team2
         if (playerList.Count % 2 == 0)
         {
-            localPlayer = InstantiatePlayer(uniqueID, 1);
+            localPlayer = InstantiatePlayer(uniqueID, 2);
         } else
         {
-            localPlayer = InstantiatePlayer(uniqueID, 2);
+            localPlayer = InstantiatePlayer(uniqueID, 1);
         }
         localPlayer.GetComponent<Paddle>().SetLocal(true);
         

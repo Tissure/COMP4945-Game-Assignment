@@ -153,8 +153,8 @@ namespace NetworkModule
             { 
                 enqueuePacket(message);                
                 message= new byte[2048];
-             /*   Debug.Log("Recieved packets.. HERER\n" + packet.readPacket(Encoding.ASCII.GetString(message)));
-                Debug.Log("Recieved Packets.. \n" + Encoding.ASCII.GetString(message));*/
+                //Debug.Log("Recieved packets.. HERER\n" + packet.readPacket(Encoding.ASCII.GetString(message)));
+                //Debug.Log("Recieved Packets.. \n" + Encoding.ASCII.GetString(message));
                 recv = mcastSocket.ReceiveFrom(message, ref remoteEP);
             }
  
