@@ -71,10 +71,10 @@ public class GameManager : MonoBehaviour
         // If playerList is even assign to team1, if odd assign team2
         if (playerList.Count % 2 == 0)
         {
-            localPlayer = InstantiatePlayer(uniqueID, 1);
+            localPlayer = InstantiatePlayer(uniqueID, 2);
         } else
         {
-            localPlayer = InstantiatePlayer(uniqueID, 2);
+            localPlayer = InstantiatePlayer(uniqueID, 1);
         }
         localPlayer.GetComponent<Paddle>().SetLocal(true);
         
