@@ -26,7 +26,7 @@ public class Preloader : MonoBehaviour
     }
 
     // Awake is called on object initialization
-    void Awake()
+    void Start()
     {
         multicast = GetComponent<WebSocketNetwork>();
         multicast.Setup();

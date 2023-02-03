@@ -52,7 +52,6 @@ public class GameManager : MonoBehaviour
     //Adds a new player to the player list and instantiates a paddle for player
     public void sendJoinServer()
     {
-        Awake();
         generateUniqueID();
         multicast.Send(packet.buildPacket("Player-Connection"));
         //check if list is odd or even
