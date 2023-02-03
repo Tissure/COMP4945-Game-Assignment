@@ -5,6 +5,7 @@ using NetworkModule;
 using System.Reflection;
 using System.IO;
 using UnityEngine;
+using static NetworkModule.PacketHandler;
 
 public class Preloader : MonoBehaviour
 {
@@ -32,7 +33,26 @@ public class Preloader : MonoBehaviour
         multicast.enabled = true;
         multicast.execute();
         //GameManager.getInstance.initDefaultGameState(); 
-        GameObject.Find("GameManager").GetComponent<GameManager>().initDefaultGameState();
+
+        string[] args = System.Environment.GetCommandLineArgs(); 
+
+        foreach(string arg in args)
+        {
+            switch (arg)
+            {
+                case "-StartServer":
+                    //start new server
+                    GameObject.Find("GameManager").GetComponent<GameManager>().initDefaultGameState();
+                    break;
+                case "-JoinServer":
+                    GameObject.Find("GameManager").GetComponent<GameManager>().sendJoinServer();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+     
     }
 
     void Update()

@@ -62,7 +62,7 @@ namespace NetworkModule
             stringBuilder.AppendFormat(Constants.CONTENTTYPEFORMAT, "New-Player-ID").Append(Constants.CRLF).Append(Constants.CRLF);
 
             // Payload
-            stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.generateUniqueID()).Append(Constants.CRLF);
+            stringBuilder.AppendFormat(Constants.IDFORMAT, gameState.GetUniqueID()).Append(Constants.CRLF);
             return stringBuilder.ToString();
         }
 
@@ -289,7 +289,7 @@ namespace NetworkModule
         /// </summary>
         public string readPacket(string payload)
         {
-            string id;
+            //string id;
             float xCoord = -1;
             float yCoord = -1;
             GameManager gameState = GameManager.getInstance;

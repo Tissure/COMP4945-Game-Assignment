@@ -45,13 +45,15 @@ public class GameManager : MonoBehaviour
             _instance = this;
             multicast = GameObject.Find("Preloader").GetComponent<WebSocketNetwork>();
             packet = new PacketHandler();
+           
         }
     }
 
     //Adds a new player to the player list and instantiates a paddle for player
-    public void onPlayerConnect(params int[] numbers)
+    public void sendJoinServer()
     {
-
+        generateUniqueID();
+        multicast.Send(packet.buildPacket("Player-Connection"));
         //check if list is odd or even
         //instantiate team 1 or 2 prefab paddle
         //add player to list
@@ -61,12 +63,12 @@ public class GameManager : MonoBehaviour
     //For testing currently
     public void initDefaultGameState()
     {
-        Awake();
+
         
         // Gets LocalIP and uses the last number of ip as ID   eg. 192.168.1.ID  
         //uniqueID = multicast.GetIP();
-        uniqueID = generateUniqueID();
-        multicast.Send(packet.buildPacket("Player-Connection"));
+
+        generateUniqueID();
         //string uniqueID = "192.168.1.111";
         // If playerList is even assign to team1, if odd assign team2
         if (playerList.Count % 2 == 0)
@@ -150,10 +152,10 @@ public class GameManager : MonoBehaviour
     
     }
 
-    public string generateUniqueID()
+    public void generateUniqueID()
     {
         // Testing
-        return Guid.NewGuid().ToString();
+        uniqueID = Guid.NewGuid().ToString();
     }
 
     public void Update()
