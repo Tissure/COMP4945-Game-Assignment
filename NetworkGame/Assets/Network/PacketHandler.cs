@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 using UnityEngine;
 
 namespace NetworkModule
@@ -412,6 +413,7 @@ namespace NetworkModule
                 GameObject player = gameState.InstantiatePlayer(playerID, team);
                 player.GetComponent<Paddle>().rb.position = new Vector2(float.Parse(playerInfoLine[2].Split(':')[1]), float.Parse(playerInfoLine[3].Split(':')[1]));
             }
+            gameState.generateLocalPlayer();
         }
     }
 }

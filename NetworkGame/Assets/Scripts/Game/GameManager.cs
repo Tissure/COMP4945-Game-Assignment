@@ -52,6 +52,7 @@ public class GameManager : MonoBehaviour
     //Adds a new player to the player list and instantiates a paddle for player
     public void sendJoinServer()
     {
+        Awake();
         generateUniqueID();
         multicast.Send(packet.buildPacket("Player-Connection"));
         //check if list is odd or even
@@ -71,16 +72,24 @@ public class GameManager : MonoBehaviour
         generateUniqueID();
         //string uniqueID = "192.168.1.111";
         // If playerList is even assign to team1, if odd assign team2
+        generateLocalPlayer();
+
+
+    }
+
+    public void generateLocalPlayer()
+    {
         if (playerList.Count % 2 == 0)
         {
             localPlayer = InstantiatePlayer(uniqueID, 2);
-        } else
+        }
+        else
         {
             localPlayer = InstantiatePlayer(uniqueID, 1);
         }
         localPlayer.GetComponent<Paddle>().SetLocal(true);
-        
     }
+
 
     //Instantiates a prefab for a specific playerid on the list
     public GameObject InstantiatePlayer(string playerID, int teamNum)
